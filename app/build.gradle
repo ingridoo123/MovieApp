@@ -110,6 +110,9 @@ dependencies {
 
     // Accompanist
     implementation 'com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha' // Updated
+
+    //YT Player
+    implementation 'com.pierfrancescosoffritti.androidyoutubeplayer:chromecast-sender:0.28'
     
 
 

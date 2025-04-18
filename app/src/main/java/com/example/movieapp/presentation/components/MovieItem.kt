@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.components
 
+import android.util.Log
 import android.widget.RatingBar
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
@@ -13,21 +14,26 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.rounded.ImageNotSupported
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,6 +70,7 @@ import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.data.remote.MediaAPI.Companion.IMAGE_BASE_URL
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
+import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.ui.theme.background
@@ -143,12 +150,11 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(10.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
+                    .padding(horizontal = 20.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -186,6 +192,31 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController) {
                 }
             }
 
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .offset(x = (-20).dp, y = (-6).dp)
+                .width(50.dp)
+                .height(19.dp)
+                .background(
+                    color = Color.White.copy(alpha = 0.8f),
+                    shape = RoundedCornerShape(20.dp)
+                )
+                .clip(RoundedCornerShape(20.dp))
+                .padding(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Image(painter = painterResource(id = R.drawable.ic_star), contentDescription = "star", modifier = Modifier.size(18.dp))
+            Text(
+                text = movieInfo?.voteAverage.toString().take(3),
+                fontFamily = netflixFamily,
+                color = background,
+                fontWeight = FontWeight.Medium,
+                fontSize = 11.sp,
+                modifier = Modifier.padding(start = 1.dp)
+            )
         }
 
 
@@ -475,3 +506,120 @@ fun MovieItemAllGenreScreen(
         }
     }
 }
+
+@Composable
+fun MovieCastComponent(castList: List<Cast>) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 15.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Cast & Crew",
+                fontFamily = netflixFamily,
+                fontSize = 16.sp,
+                color = Color.White.copy(alpha = 0.8f),
+                fontWeight = FontWeight.Medium
+            )
+            IconButton(onClick = { /* TODO: Action */ }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForwardIos,
+                    contentDescription = "See More",
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+        
+        val groupedList = castList.chunked(3)
+        
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(25.dp)
+        ) {
+            items(groupedList) { columnItems ->
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    columnItems.forEach { cast ->
+                        CastItem(cast = cast)
+                    }
+                }
+                
+            }
+        }
+    }
+}
+
+@Composable
+fun CastItem(cast: Cast) {
+    Row(
+        modifier = Modifier
+            .width(210.dp)
+            .height(60.dp)
+            .background(top_bar_component, shape = RoundedCornerShape(10.dp))
+            .padding(horizontal = 5.dp, vertical = 5.dp)
+            .clip(RoundedCornerShape(10.dp)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+           modifier = Modifier
+               .size(50.dp)
+               .background(color = component, shape = RoundedCornerShape(10.dp))
+               .clip(RoundedCornerShape(5.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if(cast.profilePath != null) {
+                Log.d("CastScreen_test", "test3")
+                Image(
+                    painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + cast.profilePath),
+                    contentDescription = "castImage",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Log.d("CastScreen_test", "test4")
+            } else {
+                Log.d("CastScreen_test", "test3_2")
+                Image(
+                    painter = painterResource(id = R.drawable.loading),
+                    contentDescription = "noImage",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        Column {
+            Log.d("CastScreen_test", "test5")
+            Text(
+                text = cast.name,
+                fontFamily = netflixFamily,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier.padding(bottom = 2.dp).fillMaxWidth(),
+                maxLines = 1
+            )
+            Log.d("CastScreen_test", "test6")
+            Text(
+                text = cast.department,
+                fontFamily = netflixFamily,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Normal,
+                color = Color.White.copy(alpha = 0.8f),
+
+            )
+            Log.d("CastScreen_test", "test7")
+
+        }
+    }
+}
+
+
+

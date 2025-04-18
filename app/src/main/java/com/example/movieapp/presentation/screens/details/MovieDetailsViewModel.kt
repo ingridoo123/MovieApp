@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.util.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +28,9 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
     private val _response3: MutableStateFlow<MovieState<List<Cast>?>> = MutableStateFlow(MovieState.Loading)
     val movieCastResponse: StateFlow<MovieState<List<Cast>?>> = _response3
+
+    private val _movieTrailerResponse: MutableStateFlow<MovieState<List<Trailer>?>> = MutableStateFlow(MovieState.Loading)
+    val movieTrailerResponse: StateFlow<MovieState<List<Trailer>?>> = _movieTrailerResponse
 
     fun fetchMovieDetails(movieId: String) {
         viewModelScope.launch {
@@ -64,5 +68,19 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
             }
         }
     }
+
+    fun fetchMovieTrailer(movieId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getMovieTrailers(movieId).first()
+                _movieTrailerResponse.emit(MovieState.Success(response.results))
+            } catch (e: Exception) {
+                val errorMessage = "trailers error, try again :*"
+                _movieTrailerResponse.emit(MovieState.Error(errorMessage))
+            }
+        }
+    }
+
+
 
 }

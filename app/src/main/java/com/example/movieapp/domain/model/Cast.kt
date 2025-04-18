@@ -11,5 +11,7 @@ data class Cast(
     @SerializedName("name")
     val name: String,
     @SerializedName("profile_path")
-    val profilePath: String?
+    val profilePath: String?,
+    @SerializedName("job")
+    val job: String
 ): Parcelable

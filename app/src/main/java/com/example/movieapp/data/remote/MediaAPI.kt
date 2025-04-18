@@ -6,6 +6,7 @@ import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
+import com.example.movieapp.data.remote.respond.VideoResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -100,6 +101,12 @@ interface MediaAPI {
         @Query("api_key") apiKey: String = API_KEY,
         @Query("language") language: String ="en"
     ): GenreResponse
+
+    @GET("movie/{movie_id}/videos")
+    suspend fun getMovieTrailer(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ):  VideoResponse
 
     @GET("search/multi")
     suspend fun search(
