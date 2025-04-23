@@ -28,6 +28,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import com.example.movieapp.ui.theme.component
+import com.example.movieapp.ui.theme.componentLighter
 
 private val SMALL_PADDING = 8.dp
 private val MEDIUM_PADDING = 16.dp
@@ -62,7 +64,7 @@ fun AnimatedShimmerItem() {
         targetValue = 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(
-                durationMillis = 500,
+                durationMillis = 600,
                 easing = FastOutLinearInEasing
             ),
             repeatMode = RepeatMode.Reverse

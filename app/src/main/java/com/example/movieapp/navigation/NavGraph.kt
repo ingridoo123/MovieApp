@@ -13,7 +13,6 @@ import com.example.movieapp.presentation.screens.all_screen.AllGenresScreen
 import com.example.movieapp.presentation.screens.details.MovieDetailsScreen
 
 import com.example.movieapp.presentation.screens.home.SimpleHomeScreen
-import com.example.movieapp.presentation.screens.player.YoutubePlayerScreen
 import com.example.movieapp.presentation.screens.splash.SplashScreen
 
 @Composable
@@ -60,13 +59,6 @@ fun SetupNavGraph(navController: NavHostController) {
                 genName = it.arguments?.getString("genName") ?: ""
             )
 
-        }
-        composable(
-            route = "youtube_player/{trailerKey}",
-            arguments = listOf(navArgument("trailerKey") { type = NavType.StringType })
-        ) {
-            val trailerKey = it.arguments?.getString("trailerKey") ?: ""
-            YoutubePlayerScreen(trailerKey = trailerKey, navController = navController)
         }
         composable(
             route = Screen.Search.route

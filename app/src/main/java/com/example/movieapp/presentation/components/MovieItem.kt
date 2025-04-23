@@ -508,6 +508,120 @@ fun MovieItemAllGenreScreen(
 }
 
 @Composable
+fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
+
+    val title = movie.title
+    val imageUrl = "${BASE_BACKDROP_IMAGE_URL}${movie.posterPath}"
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+    val imageState = imagePainter.state
+
+    val genreMap = mapOf(
+        28 to "Action", 12 to "Adventure", 16 to "Animation", 35 to "Comedy", 80 to "Crime",
+        99 to "Documentary", 18 to "Drama", 10751 to "Family", 14 to "Fantasy", 36 to "History",
+        27 to "Horror", 10402 to "Music", 9648 to "Mystery", 10749 to "Romance", 878 to "Sci-Fi",
+        10770 to "TV Movie", 53 to "Thriller", 10752 to "War", 37 to "Western"
+    )
+
+
+    val genre = movie.genreIds?.firstOrNull()?.let { genreMap[it] } ?: "N/A"
+
+    Column(
+        modifier = Modifier
+            .width(140.dp)
+            .height(260.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .height(210.dp)
+                .width(140.dp)
+                .background(color = component, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageState is AsyncImagePainter.State.Success) {
+                val imageBitmap = imageState.result.drawable.toBitmap()
+
+                Image(
+                    bitmap = imageBitmap.asImageBitmap(),
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { navController.navigate(Screen.Details.route + "/${movie.id}") }
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Icon(
+                    imageVector = Icons.Default.ImageNotSupported,
+                    contentDescription = "error",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .padding(10.dp),
+                    tint = componentLighter
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Loading) {
+                AnimatedShimmerItem()
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = title,
+                fontFamily = netflixFamily,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp),
+                color = Color.White.copy(alpha = 0.8f),
+                maxLines = 1,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if(movie.releaseDate.take(4).isNotEmpty()) movie.releaseDate.take(4) else "N/A",
+                    fontFamily = netflixFamily,
+                    color = componentLighter,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Icon(
+                    imageVector = Icons.Default.Circle,
+                    modifier = Modifier
+                        .size(10.dp) // bez zmian
+                        .padding(end = 4.dp),
+                    tint = componentLighter,
+                    contentDescription = "circle"
+                )
+                Text(
+                    text = genre ?: "N/A",
+                    fontFamily = netflixFamily,
+                    color = componentLighter,
+                    fontSize = 11.sp, // bez zmian
+                    modifier = Modifier.padding(end = 2.dp)
+                )
+            }
+        }
+    }
+
+}
+
+@Composable
 fun MovieCastComponent(castList: List<Cast>) {
     Column(
         modifier = Modifier
@@ -559,6 +673,17 @@ fun MovieCastComponent(castList: List<Cast>) {
 
 @Composable
 fun CastItem(cast: Cast) {
+
+    val imageUrl = "${BASE_BACKDROP_IMAGE_URL}${cast.profilePath}"
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+    val imageState = imagePainter.state
+
+
     Row(
         modifier = Modifier
             .width(210.dp)
@@ -575,38 +700,51 @@ fun CastItem(cast: Cast) {
                .clip(RoundedCornerShape(5.dp)),
             contentAlignment = Alignment.Center
         ) {
-            if(cast.profilePath != null) {
-                Log.d("CastScreen_test", "test3")
+            if (imageState is AsyncImagePainter.State.Success) {
+                val imageBitmap = imageState.result.drawable.toBitmap()
+
                 Image(
-                    painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + cast.profilePath),
+                    bitmap = imageBitmap.asImageBitmap(),
                     contentDescription = "castImage",
                     contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
                 )
-                Log.d("CastScreen_test", "test4")
-            } else {
-                Log.d("CastScreen_test", "test3_2")
-                Image(
-                    painter = painterResource(id = R.drawable.loading),
-                    contentDescription = "noImage",
-                    modifier = Modifier.size(30.dp)
+            }
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Icon(
+                    imageVector = Icons.Default.ImageNotSupported,
+                    contentDescription = "error",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .padding(5.dp),
+                    tint = componentLighter
                 )
+            }
+
+            if (imageState is AsyncImagePainter.State.Loading) {
+                AnimatedShimmerItem()
             }
         }
 
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            Log.d("CastScreen_test", "test5")
+            //Log.d("CastScreen_test", "test5")
             Text(
                 text = cast.name,
                 fontFamily = netflixFamily,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.8f),
-                modifier = Modifier.padding(bottom = 2.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(bottom = 2.dp)
+                    .fillMaxWidth(),
                 maxLines = 1
             )
-            Log.d("CastScreen_test", "test6")
+            //Log.d("CastScreen_test", "test6")
             Text(
                 text = cast.department,
                 fontFamily = netflixFamily,
@@ -615,7 +753,7 @@ fun CastItem(cast: Cast) {
                 color = Color.White.copy(alpha = 0.8f),
 
             )
-            Log.d("CastScreen_test", "test7")
+            //Log.d("CastScreen_test", "test7")
 
         }
     }

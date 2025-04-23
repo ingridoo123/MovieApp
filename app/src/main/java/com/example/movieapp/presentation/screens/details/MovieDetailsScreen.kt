@@ -20,15 +20,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableInferredTarget
@@ -54,11 +57,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
+import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.MovieCastComponent
 import com.example.movieapp.presentation.components.MovieDataItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
+import com.example.movieapp.presentation.components.MovieItemSmallSimilar
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
@@ -278,7 +283,6 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
        when(movieCastState) {
            is MovieState.Success -> {
                val castList = ((movieCastState as MovieState.Success<List<Cast>?>).data as? List<Cast>) ?: emptyList()
-               Log.d("CastScreen_test","test1")
                MovieCastComponent(castList = castList)
 
            }
@@ -291,6 +295,26 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
 
            }
        }
+       Spacer(modifier = Modifier.height(30.dp))
+
+       when(similarMovieState) {
+           is MovieState.Success -> {
+               val similarList = (similarMovieState as MovieState.Success<MovieResponse?>).data
+               if(similarList != null) {
+                    SimilarMoviesComponent(navController = navController, movie = similarList)
+               }
+           }
+
+           is MovieState.Loading -> {
+
+           }
+
+           is MovieState.Error -> {
+
+           }
+       }
+
+
    }
 
 
@@ -312,8 +336,8 @@ fun formatRuntime(runtime: Int?): String {
 fun PlayTrailerBox(onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .width(360.dp)
-            .height(180.dp)
+            .fillMaxWidth()
+            .height(220.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(top_bar_component)
             .clickable { onClick() },
@@ -350,6 +374,51 @@ fun YoutubePlayer(
                 })
             }
         })
+}
+
+@Composable
+fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse) {
+    val movieList = movie.results
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 15.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "You May Also Like",
+                color = Color.White.copy(alpha = 0.8f),
+                fontFamily = netflixFamily,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            IconButton(onClick = { /* TODO: Action */ }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForwardIos,
+                    contentDescription = "See More",
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(10.dp))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(movie.results.size) {
+                MovieItemSmallSimilar(movie = movieList[it],navController = navController)
+
+            }
+        }
+
+    }
 }
 
 
