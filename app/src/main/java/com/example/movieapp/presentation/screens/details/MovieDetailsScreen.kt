@@ -60,6 +60,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
+import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieCastComponent
 import com.example.movieapp.presentation.components.MovieDataItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
@@ -249,7 +250,16 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
                                    }
                                }
                                is MovieState.Loading -> {
-                                   // możesz dodać jakiś shimmer
+                                   Box(
+                                       modifier = Modifier
+                                           .fillMaxWidth()
+                                           .height(220.dp)
+                                           .clip(RoundedCornerShape(10.dp))
+                                           .background(top_bar_component),
+                                       contentAlignment = Alignment.Center
+                                   ) {
+                                       AnimatedShimmerItem()
+                                   }
                                }
                                is MovieState.Error -> {
                                    Text("Trailer unavailable", color = Color.Gray, modifier = Modifier.padding(horizontal = 16.dp))

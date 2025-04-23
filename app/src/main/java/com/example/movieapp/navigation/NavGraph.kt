@@ -1,6 +1,9 @@
 package com.example.movieapp.navigation
 
 import android.util.Log
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.core.graphics.rotationMatrix
 import androidx.navigation.NavController
@@ -34,7 +37,19 @@ fun SetupNavGraph(navController: NavHostController) {
         }
         composable(
             route = Screen.Details.route + "/{movieId}",
-            arguments = listOf(navArgument("movieId") {type = NavType.StringType})
+            arguments = listOf(navArgument("movieId") {type = NavType.StringType}),
+            enterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(durationMillis = 300)
+                )
+            }
         ) {
             Log.d("PASSED_KEY", "RootNavigation: " + it.arguments?.getString("movieId"))
             MovieDetailsScreen(navController = navController, movieId = it.arguments?.getString("movieId") ?: "1")
