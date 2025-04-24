@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Space
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,9 +23,11 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
@@ -46,6 +49,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
@@ -56,12 +60,16 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import com.example.movieapp.data.remote.MediaAPI
+import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieCastComponent
+import com.example.movieapp.presentation.components.MovieCastLoading
 import com.example.movieapp.presentation.components.MovieDataItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
 import com.example.movieapp.presentation.components.MovieItemSmallSimilar
@@ -74,6 +82,8 @@ import com.example.movieapp.util.MovieState
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 
 @Composable
@@ -83,6 +93,7 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
     val movieCastState by viewModel.movieCastResponse.collectAsState()
     val similarMovieState by viewModel.similarMoviesResponse.collectAsState()
     val movieTrailerState by viewModel.movieTrailerResponse.collectAsState()
+    val movieImagesState by viewModel.movieImagesResponse.collectAsState()
 
     var playTrailer by remember { mutableStateOf(false)}
 
@@ -91,6 +102,7 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
         viewModel.fetchMovieTrailer(movieId)
         viewModel.fetchCastOfMovie(movieId)
         viewModel.fetchSimilarMovies(movieId)
+        viewModel.fetchMovieImages(movieId)
     }
 
    Column(
@@ -235,6 +247,21 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
 
                            Spacer(modifier = Modifier.height(20.dp))
 
+                           Row(
+                               modifier = Modifier
+                                   .fillMaxWidth()
+                           ) {
+                               Text(
+                                   text = "Trailer",
+                                   fontFamily = netflixFamily,
+                                   fontSize = 16.sp,
+                                   color = Color.White.copy(alpha = 0.8f),
+                                   fontWeight = FontWeight.Medium
+                               )
+                           }
+
+                           Spacer(modifier = Modifier.height(10.dp))
+
                            when (movieTrailerState) {
                                is MovieState.Success -> {
                                    val trailerList = (movieTrailerState as MovieState.Success<List<Trailer>?>).data ?: emptyList()
@@ -243,9 +270,13 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
                                        if(playTrailer) {
                                            YoutubePlayer(youtubeVideoId = it.key, lifecycleOwner = LocalLifecycleOwner.current)
                                        } else {
-                                           PlayTrailerBox {
-                                               playTrailer = true
-                                           }
+                                           val imageUrl = (movieImagesState as? MovieState.Success)?.data
+                                               ?.firstOrNull { it.height == 1080 && it.width ==1920 }
+                                               ?.filePath
+                                           PlayTrailerBox(
+                                               onClick = {playTrailer = true},
+                                               imageUrl = imageUrl
+                                           )
                                        }
                                    }
                                }
@@ -279,12 +310,107 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
            }
 
            is MovieState.Loading -> {
-               Box(
+               Column(
                    modifier = Modifier
-                       .fillMaxSize(),
-                   contentAlignment = Alignment.Center
+                       .fillMaxSize()
                ) {
                    MovieDataItemEmpty(navController = navController)
+                   Row(
+                       modifier = Modifier
+                           .fillMaxWidth()
+                           .padding(horizontal = 20.dp),
+                       horizontalArrangement = Arrangement.Center
+                   ) {
+                       Box(
+                           modifier = Modifier
+                               .fillMaxWidth(0.5f)
+                               .height(22.dp)
+                               .clip(RoundedCornerShape(8.dp))
+                               .background(component)
+                       )
+                   }
+
+                   Spacer(modifier = Modifier.height(15.dp))
+
+                   Row(
+                       modifier = Modifier.fillMaxWidth(),
+                       horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally)
+                   ) {
+                       repeat(4) {
+                           Box(
+                               modifier = Modifier
+                                   .height(28.dp)
+                                   .width(80.dp)
+                                   .background(
+                                       color = top_bar_component,
+                                       shape = RoundedCornerShape(20.dp)
+                                   )
+                                   .padding(vertical = 6.dp, horizontal = 8.dp),
+                               contentAlignment = Alignment.Center
+                           ) {
+
+                           }
+                       }
+                   }
+
+                   Spacer(modifier = Modifier.height(22.dp))
+
+                   Column(
+                       modifier = Modifier
+                           .fillMaxWidth()
+                           .wrapContentHeight()
+                           .padding(horizontal = 15.dp)
+                   ) {
+                       Text(
+                           text = "Description",
+                           fontFamily = netflixFamily,
+                           fontSize = 18.sp,
+                           fontWeight = FontWeight.Medium,
+                           color = Color.White.copy(alpha = 0.8f),
+                           modifier = Modifier.padding(bottom = 7.dp)
+                       )
+
+                       Column {
+                           repeat(5) {
+                               Box(
+                                   modifier = Modifier
+                                       .fillMaxWidth()
+                                       .height(14.dp)
+                                       .padding(vertical = 4.dp)
+                                       .clip(RoundedCornerShape(4.dp))
+                                       .background(componentLighter)
+                               )
+                           }
+                       }
+
+                       Spacer(modifier = Modifier.height(20.dp))
+
+                       Row(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                       ) {
+                           Text(
+                               text = "Trailer",
+                               fontFamily = netflixFamily,
+                               fontSize = 16.sp,
+                               color = Color.White.copy(alpha = 0.8f),
+                               fontWeight = FontWeight.Medium
+                           )
+                       }
+
+                       Spacer(modifier = Modifier.height(10.dp))
+
+                       Box(
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .height(220.dp)
+                               .clip(RoundedCornerShape(10.dp))
+                               .background(top_bar_component),
+                           contentAlignment = Alignment.Center
+                       ) {
+                           AnimatedShimmerItem()
+                       }
+                   }
                }
            }
        }
@@ -298,7 +424,7 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
            }
 
            is MovieState.Loading -> {
-
+                MovieCastLoading()
            }
 
            is MovieState.Error -> {
@@ -343,7 +469,12 @@ fun formatRuntime(runtime: Int?): String {
 
 
 @Composable
-fun PlayTrailerBox(onClick: () -> Unit) {
+fun PlayTrailerBox(onClick: () -> Unit, imageUrl: String?) {
+
+    val hazeState = remember {
+        HazeState()
+    }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -353,12 +484,45 @@ fun PlayTrailerBox(onClick: () -> Unit) {
             .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.PlayArrow,
-            contentDescription = "Play Trailer",
-            tint = Color.White,
-            modifier = Modifier.size(50.dp)
-        )
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .haze(
+                    state = hazeState,
+                    backgroundColor = top_bar_component.copy(alpha = 0.7f),
+                    tint = top_bar_component.copy(alpha = 0.2f),
+                    blurRadius = 15.dp
+                )
+        ) {
+            if (imageUrl != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + imageUrl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .fillMaxSize()
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .hazeChild(hazeState, shape = CircleShape)
+                .clip(shape = CircleShape)
+                .background(Color.Transparent, shape = CircleShape),
+            contentAlignment =  Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "PlayArrow",
+                tint = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier
+                    .size(50.dp)
+                    .hazeChild(hazeState, shape = RoundedCornerShape(10.dp))
+            )
+        }
+
     }
 }
 

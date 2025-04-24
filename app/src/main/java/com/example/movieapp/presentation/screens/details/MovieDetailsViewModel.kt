@@ -2,6 +2,7 @@ package com.example.movieapp.presentation.screens.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movieapp.data.remote.respond.BackdropImage
 import com.example.movieapp.data.remote.respond.CastResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
@@ -31,6 +32,9 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
     private val _movieTrailerResponse: MutableStateFlow<MovieState<List<Trailer>?>> = MutableStateFlow(MovieState.Loading)
     val movieTrailerResponse: StateFlow<MovieState<List<Trailer>?>> = _movieTrailerResponse
+
+    private val _movieImagesResponse: MutableStateFlow<MovieState<List<BackdropImage>?>> = MutableStateFlow(MovieState.Loading)
+    val movieImagesResponse: StateFlow<MovieState<List<BackdropImage>?>> = _movieImagesResponse
 
     fun fetchMovieDetails(movieId: String) {
         viewModelScope.launch {
@@ -77,6 +81,18 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
             } catch (e: Exception) {
                 val errorMessage = "trailers error, try again :*"
                 _movieTrailerResponse.emit(MovieState.Error(errorMessage))
+            }
+        }
+    }
+
+    fun fetchMovieImages(movieId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getMovieImages(movieId).first()
+                _movieImagesResponse.emit(MovieState.Success(response.backdrops))
+            } catch (e: Exception) {
+                val errorMessage = "images error, try again :*"
+                _movieImagesResponse.emit(MovieState.Error(errorMessage))
             }
         }
     }

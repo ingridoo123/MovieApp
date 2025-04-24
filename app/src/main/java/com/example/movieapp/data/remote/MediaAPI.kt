@@ -4,6 +4,7 @@ package com.example.movieapp.data.remote
 import com.example.movieapp.data.remote.respond.CastResponse
 import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
+import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
@@ -95,6 +96,12 @@ interface MediaAPI {
         @Path("movie_id") movieId: Int,
         @Query("api_key") apiKey: String = API_KEY,
     ): CastResponse
+
+    @GET("movie/{movie_id}/images")
+    suspend fun getMovieImages(
+        @Path("movie_id") movieId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): MovieImagesResponse
 
     @GET("genre/movie/list")
     suspend fun getMovieGenres(

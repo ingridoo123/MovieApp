@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -671,6 +672,8 @@ fun MovieCastComponent(castList: List<Cast>) {
     }
 }
 
+
+
 @Composable
 fun CastItem(cast: Cast) {
 
@@ -696,8 +699,8 @@ fun CastItem(cast: Cast) {
         Box(
            modifier = Modifier
                .size(50.dp)
-               .background(color = component, shape = RoundedCornerShape(10.dp))
-               .clip(RoundedCornerShape(5.dp)),
+               .background(color = component, shape = RoundedCornerShape(12.dp))
+               .clip(RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
             if (imageState is AsyncImagePainter.State.Success) {
@@ -732,7 +735,7 @@ fun CastItem(cast: Cast) {
 
         Spacer(modifier = Modifier.width(8.dp))
         Column {
-            //Log.d("CastScreen_test", "test5")
+
             Text(
                 text = cast.name,
                 fontFamily = netflixFamily,
@@ -744,7 +747,7 @@ fun CastItem(cast: Cast) {
                     .fillMaxWidth(),
                 maxLines = 1
             )
-            //Log.d("CastScreen_test", "test6")
+
             Text(
                 text = cast.department,
                 fontFamily = netflixFamily,
@@ -753,8 +756,83 @@ fun CastItem(cast: Cast) {
                 color = Color.White.copy(alpha = 0.8f),
 
             )
-            //Log.d("CastScreen_test", "test7")
 
+
+        }
+    }
+}
+
+@Composable
+fun CastItemShimmer() {
+    Row(
+        modifier = Modifier
+            .width(210.dp)
+            .height(60.dp)
+            .background(top_bar_component, shape = RoundedCornerShape(10.dp))
+            .padding(horizontal = 5.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(50.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(component),
+            contentAlignment = Alignment.Center
+        ) {
+            AnimatedShimmerItem()
+        }
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(vertical = 4.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.7f)
+                    .height(12.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(component)
+            )
+            Spacer(modifier = Modifier.height(6.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.5f)
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(component)
+            )
+        }
+    }
+}
+@Composable
+fun MovieCastLoading() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 15.dp)
+    ) {
+        Text(
+            text = "Cast & Crew",
+            fontFamily = netflixFamily,
+            fontSize = 16.sp,
+            color = Color.White.copy(alpha = 0.8f),
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(25.dp)) {
+            items(5) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    repeat(3) {
+                        CastItemShimmer()
+                    }
+                }
+            }
         }
     }
 }
