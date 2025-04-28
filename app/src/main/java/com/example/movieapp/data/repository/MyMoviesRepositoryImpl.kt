@@ -19,8 +19,8 @@ class MyMoviesRepositoryImpl @Inject constructor(private val mediaDao: MediaDao)
         return mediaDao.exists(mediaId)
     }
 
-    fun getAllWatchListData(): Flow<List<MediaEntity>> {
-        return mediaDao.getAllWatchListData()
+    fun getAllMoviesData(): Flow<List<MediaEntity>> {
+        return mediaDao.getAllMoviesData()
     }
 
 

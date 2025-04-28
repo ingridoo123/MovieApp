@@ -1,9 +1,14 @@
 package com.example.movieapp.navigation
 
 import android.util.Log
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.core.graphics.rotationMatrix
 import androidx.navigation.NavController
@@ -14,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.movieapp.presentation.screens.all_screen.AllGenresScreen
 import com.example.movieapp.presentation.screens.details.MovieDetailsScreen
+import com.example.movieapp.presentation.screens.favourite.FavouriteScreen
 
 import com.example.movieapp.presentation.screens.home.SimpleHomeScreen
 import com.example.movieapp.presentation.screens.splash.SplashScreen
@@ -37,23 +43,96 @@ fun SetupNavGraph(navController: NavHostController) {
         }
         composable(
             route = Screen.Details.route + "/{movieId}",
-            arguments = listOf(navArgument("movieId") {type = NavType.StringType}),
+            arguments = listOf(navArgument("movieId") { type = NavType.StringType }),
             enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(durationMillis = 300)
-                )
+                when (initialState.destination.route) {
+                    Screen.Favourite.route -> slideInVertically(
+                        initialOffsetY = { fullHeight -> fullHeight },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                    else -> slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                }
             },
             exitTransition = {
                 slideOutHorizontally(
                     targetOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(durationMillis = 300)
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
                 )
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            },
+            popExitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Favourite.route -> slideOutVertically(
+                        targetOffsetY = { fullHeight -> fullHeight },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                    else -> slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                }
             }
         ) {
-            Log.d("PASSED_KEY", "RootNavigation: " + it.arguments?.getString("movieId"))
-            MovieDetailsScreen(navController = navController, movieId = it.arguments?.getString("movieId") ?: "1")
-
+            MovieDetailsScreen(
+                navController = navController,
+                movieId = it.arguments?.getString("movieId") ?: "1"
+            )
         }
         composable(
             route = Screen.AllMovies.route + "/{seeAllTags}",
@@ -81,9 +160,9 @@ fun SetupNavGraph(navController: NavHostController) {
 
         }
         composable(
-            route = Screen.WatchList.route
+            route = Screen.Favourite.route,
         ) {
-
+            FavouriteScreen(navController = navController)
         }
         composable(
             route = Screen.About.route

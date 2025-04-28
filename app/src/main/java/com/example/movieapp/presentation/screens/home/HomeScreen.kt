@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -173,7 +174,9 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
             }
         }
         Column(
-            modifier = Modifier.fillMaxSize().padding(12.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
         ) {
             when(genresMovieState) {
                 is MovieState.Success -> {
@@ -208,6 +211,9 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         CircularProgressIndicator(color = Color.White)
                     }
                 }
+            }
+            Button(onClick = { navController.navigate(Screen.Favourite.route) }) {
+                Text(text = "Favourites")
             }
         }
 
@@ -387,8 +393,8 @@ fun HomeSlider(
                     )
                 }
 
-
             }
+
         }
     }
 }

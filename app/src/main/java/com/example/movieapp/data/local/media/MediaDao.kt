@@ -22,6 +22,6 @@ interface MediaDao {
     suspend fun exists(mediaId: Int):Int
 
     @Query("SELECT * FROM watch_list_table ORDER BY addedOn DESC")
-    fun getAllWatchListData(): Flow<List<MediaEntity>>
+    fun getAllMoviesData(): Flow<List<MediaEntity>>
 
 }

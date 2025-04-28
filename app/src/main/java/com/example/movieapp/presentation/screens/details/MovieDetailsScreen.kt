@@ -73,6 +73,7 @@ import com.example.movieapp.presentation.components.MovieCastLoading
 import com.example.movieapp.presentation.components.MovieDataItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
 import com.example.movieapp.presentation.components.MovieItemSmallSimilar
+import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
@@ -87,7 +88,11 @@ import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 
 @Composable
-fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel: MovieDetailsViewModel = hiltViewModel()) {
+fun MovieDetailsScreen(
+    navController: NavController, movieId: String,
+    viewModel: MovieDetailsViewModel = hiltViewModel(),
+    viewModel2: FavouriteViewModel = hiltViewModel()
+) {
 
     val detailsMovieState by viewModel.detailsMovieResponse.collectAsState()
     val movieCastState by viewModel.movieCastResponse.collectAsState()
@@ -118,7 +123,11 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
                    Column(modifier = Modifier
                        .fillMaxSize()
                    ) {
-                       MovieDataItem(movieInfo = it, navController = navController)
+                       val imageUrl = (movieImagesState as? MovieState.Success)?.data
+                           ?.firstOrNull { it.height == 1080 && it.width ==1920 && it.language == "en" }
+                           ?.filePath
+
+                       MovieDataItem(movieInfo = it, navController = navController, viewModel = viewModel2, imageUrl ?: "")
                        Row(
                            modifier = Modifier
                                .fillMaxWidth()
@@ -270,9 +279,6 @@ fun MovieDetailsScreen(navController: NavController, movieId: String, viewModel:
                                        if(playTrailer) {
                                            YoutubePlayer(youtubeVideoId = it.key, lifecycleOwner = LocalLifecycleOwner.current)
                                        } else {
-                                           val imageUrl = (movieImagesState as? MovieState.Success)?.data
-                                               ?.firstOrNull { it.height == 1080 && it.width ==1920 }
-                                               ?.filePath
                                            PlayTrailerBox(
                                                onClick = {playTrailer = true},
                                                imageUrl = imageUrl

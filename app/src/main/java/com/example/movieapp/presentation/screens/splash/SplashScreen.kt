@@ -39,30 +39,29 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
         ) {
-            // Placeholder for app logo - you can replace this with your actual logo
+
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "App Logo",
                 modifier = Modifier.size(120.dp)
             )
 
-            // Show loading indicator
+
             CircularProgressIndicator(
                 modifier = Modifier.padding(top = 24.dp)
             )
         }
     }
 
-    // Navigate to SimpleHomeScreen when data is loaded and delay has passed
+
     LaunchedEffect(popularMoviesState, trendingMoviesState) {
-        // Wait for at least 1 second
+
         delay(1250)
 
-        // Only navigate if data is loaded
-        //if (popularMoviesState is MovieState.Success && trendingMoviesState is MovieState.Success) {
+
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.Launch.route) { inclusive = true }
             }
-        //}
+
     }
 } 

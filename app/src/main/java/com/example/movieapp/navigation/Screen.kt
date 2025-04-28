@@ -18,7 +18,7 @@ sealed class Screen(val route: String) {
 
     object About: Screen("about_screen")
 
-    object WatchList: Screen("watchlist_screen")
+    object Favourite: Screen("favourite_screen")
 
 
 }

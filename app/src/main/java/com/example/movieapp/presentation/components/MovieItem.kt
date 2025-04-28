@@ -2,6 +2,7 @@ package com.example.movieapp.presentation.components
 
 import android.util.Log
 import android.widget.RatingBar
+import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.ImageNotSupported
@@ -67,6 +69,7 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
 import com.example.movieapp.R
+import com.example.movieapp.data.local.media.MediaEntity
 import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.data.remote.MediaAPI.Companion.IMAGE_BASE_URL
@@ -74,6 +77,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.navigation.Screen
+import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
@@ -84,6 +88,8 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.Date
 
 @Composable
 fun MovieItemLoadingPlaceholder() {
@@ -106,11 +112,27 @@ fun MovieItemLoadingPlaceholder() {
 }
 
 @Composable
-fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController) {
+fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, viewModel: FavouriteViewModel, bookmarkImageUrl: String) {
 
     val hazeState = remember {
         HazeState()
     }
+
+    viewModel.isFavourite(movieInfo!!.id)
+    var isFavourite = viewModel.isFavourite.value
+
+    Log.d("EXIST??","Fav Movie Data: $isFavourite")
+    val date = SimpleDateFormat.getDateInstance().format(Date())
+    val context = LocalContext.current
+
+    val myMovieInfo = MediaEntity(
+        mediaId = movieInfo.id,
+        imagePath = bookmarkImageUrl,
+        title = movieInfo.title,
+        releaseDate = movieInfo.releaseDate,
+        rating = movieInfo.voteAverage,
+        addedOn = date
+    )
 
     Box(
         modifier = Modifier
@@ -181,12 +203,29 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController) {
                         .height(40.dp)
                         .width(40.dp)
                         .clip(shape = RoundedCornerShape(20.dp))
-                        .clickable { }
+                        .clickable {
+                            if (isFavourite != 0) {
+                                viewModel.removeFromFavourites(movieInfo.id)
+                                Toast.makeText(
+                                    context,
+                                    "Remove from your Favourites",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                viewModel.addToFavourites(myMovieInfo)
+                                Toast.makeText(
+                                    context,
+                                    "Added to your Favourites",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            navController.navigate(Screen.Favourite.route)
+                        }
                         .hazeChild(hazeState, shape = RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.BookmarkBorder ,
+                        imageVector = if (isFavourite != 0) Icons.Default.Bookmark else Icons.Default.BookmarkBorder ,
                         contentDescription = "",
                         tint = Color.White.copy(alpha = 0.8f)
                     )

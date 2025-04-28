@@ -18,5 +18,5 @@ data class BackdropImage(
     @SerializedName("file_path")
     val filePath: String,
     @SerializedName("width")
-    val width: Int
+    val width: Int,
 ) : Parcelable
