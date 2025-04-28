@@ -15,3 +15,4 @@ val background = Color(0xFF101213) //0f1011
 val component = Color(0xFF3d3d3d)
 val top_bar_component = Color(0xFF1c1c1c)
 val componentLighter = Color(0xFF808080)
+val deleteRed = Color(0xFFd52828)
