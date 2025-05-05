@@ -153,8 +153,8 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
             Image(
                 painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + movieInfo!!.backdropPath),
                 contentDescription = "",
-                contentScale = ContentScale.FillHeight,
-                modifier = Modifier.fillMaxSize()
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxWidth().height(350.dp)
             )
             Box(
                 modifier = Modifier
