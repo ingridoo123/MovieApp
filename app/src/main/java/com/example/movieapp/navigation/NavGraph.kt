@@ -68,7 +68,6 @@ fun SetupNavGraph(navController: NavHostController) {
 
             }
             composable(route = Screen.Home.route) {
-                //HomeScreen(navController = navController)
                 selectedTab = 0
                 SimpleHomeScreen(navController = navController)
 
