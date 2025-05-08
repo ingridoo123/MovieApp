@@ -44,7 +44,7 @@ fun MovieBottomBar(navController: NavController, selectedTab: Int) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp)
+            .height(65.dp)
             .drawBehind {
                 drawLine(
                     color = component,
@@ -79,7 +79,7 @@ fun MovieBottomBar(navController: NavController, selectedTab: Int) {
                         imageVector = icon,
                         contentDescription = screen.route,
                         tint = if(isSelected) Color.White.copy(0.8f) else component,
-                        modifier = Modifier.size(35.dp)
+                        modifier = Modifier.size(32.dp)
                     )
 
                 }

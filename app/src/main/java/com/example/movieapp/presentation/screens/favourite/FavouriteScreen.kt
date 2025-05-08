@@ -20,16 +20,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-
 import androidx.compose.foundation.lazy.items
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.DismissDirection
 import androidx.compose.material.DismissValue
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.Icon
@@ -38,10 +38,14 @@ import androidx.compose.material.SwipeToDismiss
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -70,34 +74,54 @@ import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_U
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
+import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.componentLighter
 import com.example.movieapp.ui.theme.deleteRed
 import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants
 import com.example.movieapp.util.Constants.netflixFamily
 
-@Composable
+@Composablegitt
 fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel = hiltViewModel(), viewModel2: MovieDetailsViewModel = hiltViewModel()) {
 
     val myMoviesDataFlow = viewModel.myMovieData.value
-    val myMoviesData by myMoviesDataFlow.collectAsState(initial = null)
+    val myMoviesDataOriginal by myMoviesDataFlow.collectAsState(initial = null)
 
     var isEditMode by remember { mutableStateOf(false) }
 
+    val sortOptions = listOf("Date added to the list", "Title (A-Z)", "Release date")
+    var showSortDialog by remember { mutableStateOf(false) }
+    var selectedSort by remember { mutableStateOf(sortOptions[0]) }
+
+
+    val sortedMovies = remember(myMoviesDataOriginal, selectedSort) {
+        myMoviesDataOriginal?.let { movies ->
+            when (selectedSort) {
+                "Date added to the list" -> movies
+                "Title (A-Z)" -> movies.sortedBy { it.title?.lowercase() ?: "" }
+                "Release date" -> movies.sortedByDescending { it.releaseDate ?: "" }
+                else -> movies
+            }
+        }
+    }
+
+
+    Box(modifier = Modifier.fillMaxSize()) {
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(10.dp)
     ) {
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(50.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(color = top_bar_component),
-            ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(color = top_bar_component),
+        ) {
             Text(
-                text = if(isEditMode) "Edit" else "My List",
+                text = if (isEditMode) "Edit" else "My List",
                 fontSize = 19.sp,
                 fontFamily = netflixFamily,
                 fontWeight = FontWeight.Medium,
@@ -106,17 +130,21 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
             )
 
             IconButton(
-                onClick = { if(!isEditMode) {navController.popBackStack()} },
+                onClick = {
+                    if (!isEditMode) {
+                        navController.popBackStack()
+                    }
+                },
                 modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBackIosNew,
                     contentDescription = "IosBack",
-                    tint = if(isEditMode) top_bar_component else Color.White.copy(alpha = 0.8f)
+                    tint = if (isEditMode) top_bar_component else Color.White.copy(alpha = 0.8f)
                 )
             }
 
-            if(isEditMode) {
+            if (isEditMode) {
                 Text(
                     text = "Finished",
                     fontSize = 14.sp,
@@ -126,7 +154,7 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .clickable { isEditMode = !isEditMode }
-                        .padding(end = 17.dp,top = 2.dp)
+                        .padding(end = 17.dp, top = 2.dp)
                 )
             } else {
                 IconButton(
@@ -154,17 +182,35 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                 fontWeight = FontWeight.Normal,
                 color = componentLighter
             )
-            Text(
-                text = "Date added to the list:",
-                fontSize = 15.sp,
-                fontFamily = netflixFamily,
-                color = Color.White.copy(alpha = 0.8f),
-                fontWeight = FontWeight.Medium
-            )
+            Box(
+                modifier = Modifier
+                    .padding(top = 1.dp)
+                    .clickable { showSortDialog = true }
+                    .background(Color.Transparent)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = selectedSort,
+                        fontSize = 15.sp,
+                        fontFamily = netflixFamily,
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Dropdown",
+                        tint = Color.White.copy(alpha = 0.8f),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+
+            }
         }
         Spacer(modifier = Modifier.height(5.dp))
 
-        if(myMoviesData == null) {
+        if (myMoviesDataOriginal == null) {
             Column(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -178,10 +224,12 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(15.dp)
             ) {
+
                 items(
-                    items = myMoviesData ?: emptyList(),
+                    items = sortedMovies ?: emptyList(),
                     key = { it.mediaId }
                 ) { movie ->
+
 
                     var visible by remember { mutableStateOf(true) }
 
@@ -211,9 +259,80 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                 }
             }
         }
+    }
+        if (showSortDialog) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(background.copy(alpha = 0.8f))
+                    .clickable(enabled = true, onClick = { showSortDialog = false }),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    modifier = Modifier
+                        .width(300.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(top_bar_component)
+                        .padding(vertical = 5.dp, horizontal = 10.dp)
+                        .clickable(enabled = false, onClick = {}),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Sort by",
+                            fontSize = 18.sp,
+                            fontFamily = netflixFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                        IconButton(onClick = { showSortDialog = false }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
 
+                    sortOptions.forEach { option ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    selectedSort = option
+                                    showSortDialog = false
+                                }
+                                .padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (selectedSort == option) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = "Zaznaczone",
+                                    tint = Color.White.copy(alpha = 0.9f),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            } else {
+                                Spacer(modifier = Modifier.width(20.dp))
+                            }
 
+                            Spacer(modifier = Modifier.width(10.dp))
 
+                            Text(
+                                text = option,
+                                fontSize = 15.sp,
+                                fontFamily = netflixFamily,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
     }
 }
@@ -310,11 +429,5 @@ fun FavouriteItem(navController: NavController, imageUrl: String, title: String,
             }
         }
     )
-
-
-
-
-
-
 
 }

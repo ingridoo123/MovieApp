@@ -212,9 +212,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                     }
                 }
             }
-            Button(onClick = { navController.navigate(Screen.Favourite.route) }) {
-                Text(text = "Favourites")
-            }
+
         }
 
     }
