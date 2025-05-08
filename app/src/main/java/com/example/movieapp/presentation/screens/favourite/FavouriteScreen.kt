@@ -81,7 +81,7 @@ import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants
 import com.example.movieapp.util.Constants.netflixFamily
 
-@Composablegitt
+@Composable
 fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel = hiltViewModel(), viewModel2: MovieDetailsViewModel = hiltViewModel()) {
 
     val myMoviesDataFlow = viewModel.myMovieData.value
