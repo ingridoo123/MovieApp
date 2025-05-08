@@ -121,7 +121,6 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
     viewModel.isFavourite(movieInfo!!.id)
     var isFavourite = viewModel.isFavourite.value
 
-    Log.d("EXIST??","Fav Movie Data: $isFavourite")
     val date = SimpleDateFormat.getDateInstance().format(Date())
     val context = LocalContext.current
 
@@ -219,7 +218,6 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
                                     Toast.LENGTH_SHORT
                                 ).show()
                             }
-                            navController.navigate(Screen.Favourite.route)
                         }
                         .hazeChild(hazeState, shape = RoundedCornerShape(20.dp)),
                     contentAlignment = Alignment.Center

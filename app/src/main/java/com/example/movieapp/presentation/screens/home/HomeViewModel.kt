@@ -65,6 +65,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger: StateFlow<Int> = _refreshTrigger
 
+    private val _cachedFilteredMovies = MutableStateFlow<List<Movie>>(emptyList())
+    val cachedFilteredMovies: StateFlow<List<Movie>> = _cachedFilteredMovies
+
     init {
         fetchPopularMovies()
         fetchDiscoverMovies()
@@ -75,10 +78,10 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         fetchTopRatedMovies()
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
-    fun registerNetwork(context: Context) {
-        networkUtils.registerNetworkCallback(context)
-    }
+//    @RequiresApi(Build.VERSION_CODES.S)
+//    fun registerNetwork(context: Context) {
+//        networkUtils.registerNetworkCallback(context)
+//    }
 
     val popularAllListState = repository.getAllMoviesPagination("popularAllListScreen").flow.cachedIn(viewModelScope)
     val discoverListState = repository.getAllMoviesPagination("discoverListScreen").flow.cachedIn(viewModelScope)
@@ -103,6 +106,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
                 // Handle any errors if needed
             }
         }
+    }
+    fun cacheFilteredMovies(movies: List<Movie>) {
+        _cachedFilteredMovies.value = movies
     }
 
     fun setGenreData(genreSelected: Int) {

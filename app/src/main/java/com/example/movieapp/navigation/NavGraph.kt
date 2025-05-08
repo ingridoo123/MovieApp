@@ -106,7 +106,7 @@ fun SetupNavGraph(navController: NavHostController) {
                 },
                 exitTransition = {
                     slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> fullWidth },
+                        targetOffsetX = { fullWidth -> -fullWidth },
                         animationSpec = tween(
                             durationMillis = 500,
                             easing = FastOutSlowInEasing
@@ -148,7 +148,7 @@ fun SetupNavGraph(navController: NavHostController) {
                         )
 
                         else -> slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> -fullWidth },
+                            targetOffsetX = { fullWidth -> fullWidth },
                             animationSpec = tween(
                                 durationMillis = 500,
                                 easing = FastOutSlowInEasing

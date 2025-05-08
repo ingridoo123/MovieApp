@@ -77,9 +77,8 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
     val allDetailsLoaded by viewModel.allDetailsLoaded.collectAsState()
     val genresMovieState by viewModel.genresMovieResponse.collectAsState()
 
-    var preparedMovies by remember {
-        mutableStateOf<List<Movie>>(emptyList())
-    }
+    var preparedMovies by remember { mutableStateOf(viewModel.cachedFilteredMovies.value) }
+
     var isLoadingDetails by remember {
         mutableStateOf(true)
     }
@@ -101,19 +100,20 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
 
                 // Przygotuj filtrowane filmy tylko raz przy zmianie danych
                 LaunchedEffect(movies) {
-                    isLoadingDetails = true
-                    val filtered = movies.filter { it.originalLanguage == "en" }.shuffled().take(5)
-                    preparedMovies = filtered
+                    if(viewModel.cachedFilteredMovies.value.isEmpty()) {
+                        isLoadingDetails = true
+                        val filtered = movies.filter { it.originalLanguage == "en" && !it.title.contains("Gabriel") && !it.title.contains("Primal: Tales") }.shuffled().take(5)
+                        preparedMovies = filtered
+                        viewModel.cacheFilteredMovies(filtered)
 
-                    // Resetuj i pobierz wszystkie szczegóły
-                    viewModel.resetDetailsLoaded()
-                    viewModel.fetchAllMovieDetails(filtered.map { it.id.toString() })
+                        viewModel.resetDetailsLoaded()
+                        viewModel.fetchAllMovieDetails(filtered.map { it.id.toString() })
+                    }
                 }
 
-                // Obserwuj zmiany stanu załadowania
                 LaunchedEffect(allDetailsLoaded) {
-                    if (allDetailsLoaded) {
-                        // Upewnij się, że mamy wszystkie szczegóły dla wyświetlanych filmów
+                    if (allDetailsLoaded && preparedMovies.isNotEmpty()) {
+
                         val allDetailsAvailable = preparedMovies.all { movieDetailsMap.containsKey(it.id) }
                         isLoadingDetails = !allDetailsAvailable
                     }
