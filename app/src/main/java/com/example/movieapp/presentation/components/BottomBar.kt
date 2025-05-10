@@ -33,7 +33,7 @@ import com.example.movieapp.ui.theme.componentLighter
 import com.example.movieapp.ui.theme.top_bar_component
 
 @Composable
-fun MovieBottomBar(navController: NavController, selectedTab: Int) {
+fun MovieBottomBar(selectedTab: Int, onTabSelected: (Int) -> Unit) {
 
     val items = listOf(
         Screen.Home to Icons.Default.Home,
@@ -66,15 +66,7 @@ fun MovieBottomBar(navController: NavController, selectedTab: Int) {
             items.forEachIndexed { index, (screen, icon) ->
                 val isSelected = selectedTab == index
 
-                IconButton(onClick = {
-                    if(navController.currentDestination?.route != screen.route) {
-                        navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
-                }) {
+                IconButton(onClick = { onTabSelected(index) }) {
                     Icon(
                         imageVector = icon,
                         contentDescription = screen.route,

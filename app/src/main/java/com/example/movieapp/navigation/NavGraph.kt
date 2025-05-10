@@ -17,6 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.graphics.rotationMatrix
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -24,10 +25,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.movieapp.presentation.MainScreen
 import com.example.movieapp.presentation.components.MovieBottomBar
 import com.example.movieapp.presentation.screens.all_screen.AllGenresScreen
 import com.example.movieapp.presentation.screens.details.MovieDetailsScreen
 import com.example.movieapp.presentation.screens.favourite.FavouriteScreen
+import com.example.movieapp.presentation.screens.home.HomeViewModel
 
 import com.example.movieapp.presentation.screens.home.SimpleHomeScreen
 import com.example.movieapp.presentation.screens.search.SearchScreen
@@ -38,26 +41,8 @@ import com.example.movieapp.ui.theme.background
 @Composable
 fun SetupNavGraph(navController: NavHostController) {
 
-    var selectedTab by remember { mutableStateOf(0) }
 
-    val currentRoute = navController
-        .currentBackStackEntryAsState().value?.destination?.route
-
-    val showBottomBar = currentRoute?.startsWith(Screen.Home.route) == true ||
-            currentRoute?.startsWith(Screen.Search.route) == true ||
-            currentRoute?.startsWith(Screen.Favourite.route) == true
-
-
-    Scaffold(
-        bottomBar = {
-            if (showBottomBar) {
-                MovieBottomBar(navController = navController, selectedTab = selectedTab)
-            }
-        },
-        backgroundColor = background
-    )
-    {
-        NavHost(
+    NavHost(
             navController = navController,
             startDestination = Screen.Launch.route
         ) {
@@ -67,10 +52,9 @@ fun SetupNavGraph(navController: NavHostController) {
             composable(route = Screen.Welcome.route) {
 
             }
-            composable(route = Screen.Home.route) {
-                selectedTab = 0
-                SimpleHomeScreen(navController = navController)
 
+            composable(route = Screen.Main.route) {
+                MainScreen(navController = navController)
             }
             composable(
                 route = Screen.Details.route + "/{movieId}",
@@ -187,28 +171,12 @@ fun SetupNavGraph(navController: NavHostController) {
                 )
 
             }
-            composable(
-                route = Screen.Search.route
-            ) {
-                selectedTab = 1
-                SearchScreen(navController)
 
-            }
-            composable(
-                route = Screen.Favourite.route,
-            ) {
-                selectedTab = 2
-                FavouriteScreen(navController = navController)
-            }
             composable(
                 route = Screen.About.route
             ) {
 
             }
         }
-    }
-
-
-
 
 }

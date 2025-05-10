@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -83,10 +84,11 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
         mutableStateOf(true)
     }
 
-    // Force refresh when refreshTrigger changes
+
     LaunchedEffect(refreshTrigger) {
         popularMoviesLazy.refresh()
     }
+    Log.d("HOMEMOVIES", preparedMovies.map{ it.title }.toString())
 
     Column(
         modifier = Modifier
@@ -127,7 +129,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         navController
                     )
                 } else {
-                    // Pokaż ekran ładowania
+
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()

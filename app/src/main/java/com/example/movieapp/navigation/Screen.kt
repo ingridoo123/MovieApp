@@ -2,6 +2,8 @@ package com.example.movieapp.navigation
 
 sealed class Screen(val route: String) {
 
+    object Main : Screen("main_screen")
+
     object Launch: Screen("launch_screen")
 
     object Welcome: Screen("welcome_screen")

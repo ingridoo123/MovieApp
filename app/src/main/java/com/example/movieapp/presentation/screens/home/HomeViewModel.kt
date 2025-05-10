@@ -3,6 +3,7 @@ package com.example.movieapp.presentation.screens.home
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -26,6 +27,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val repository: HomeRepositoryImpl): ViewModel() {
+
+
+    companion object {
+        private const val CACHED_MOVIES_KEY = "cached_filtered_movies"
+    }
 
     private val _response1: MutableStateFlow<MovieState<MovieResponse?>> = MutableStateFlow(MovieState.Loading)
     val popularMovieResponse: StateFlow<MovieState<MovieResponse?>> = _response1
