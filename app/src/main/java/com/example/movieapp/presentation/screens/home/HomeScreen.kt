@@ -104,7 +104,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                 LaunchedEffect(movies) {
                     if(viewModel.cachedFilteredMovies.value.isEmpty()) {
                         isLoadingDetails = true
-                        val filtered = movies.filter { it.originalLanguage == "en" && !it.title.contains("Gabriel") && !it.title.contains("Primal: Tales") }.shuffled().take(5)
+                        val filtered = movies.filter { it.originalLanguage == "en" && !it.title.contains("Lucy Shimmers and the") &&!it.title.contains("Gabriel") && !it.title.contains("Primal: Tales") }.shuffled().take(5)
                         preparedMovies = filtered
                         viewModel.cacheFilteredMovies(filtered)
 

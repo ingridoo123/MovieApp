@@ -20,6 +20,8 @@ sealed class Screen(val route: String) {
 
     object About: Screen("about_screen")
 
+    object CastAndCrew: Screen("cast_and_crew_screen")
+
     object Favourite: Screen("favourite_screen")
 
 

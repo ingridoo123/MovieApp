@@ -28,6 +28,7 @@ import androidx.navigation.navArgument
 import com.example.movieapp.presentation.MainScreen
 import com.example.movieapp.presentation.components.MovieBottomBar
 import com.example.movieapp.presentation.screens.all_screen.AllGenresScreen
+import com.example.movieapp.presentation.screens.details.CastAndCrewScreen
 import com.example.movieapp.presentation.screens.details.MovieDetailsScreen
 import com.example.movieapp.presentation.screens.favourite.FavouriteScreen
 import com.example.movieapp.presentation.screens.home.HomeViewModel
@@ -151,6 +152,11 @@ fun SetupNavGraph(navController: NavHostController) {
                     movieId = it.arguments?.getString("movieId") ?: "1"
                 )
             }
+        
+            composable(Screen.CastAndCrew.route) {
+                CastAndCrewScreen(navController = navController)
+            }    
+        
             composable(
                 route = Screen.AllMovies.route + "/{seeAllTags}",
                 arguments = listOf(navArgument("seeAllTags") { type = NavType.StringType })

@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
+import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.util.MovieState
@@ -30,11 +31,16 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
     private val _response3: MutableStateFlow<MovieState<List<Cast>?>> = MutableStateFlow(MovieState.Loading)
     val movieCastResponse: StateFlow<MovieState<List<Cast>?>> = _response3
 
+    private val _crewCastResponse: MutableStateFlow<MovieState<Pair<List<Cast>, List<Crew>>>?> = MutableStateFlow(null)
+    val crewCastResponse: StateFlow<MovieState<Pair<List<Cast>, List<Crew>>>?> = _crewCastResponse
+
     private val _movieTrailerResponse: MutableStateFlow<MovieState<List<Trailer>?>> = MutableStateFlow(MovieState.Loading)
     val movieTrailerResponse: StateFlow<MovieState<List<Trailer>?>> = _movieTrailerResponse
 
     private val _movieImagesResponse: MutableStateFlow<MovieState<List<BackdropImage>?>> = MutableStateFlow(MovieState.Loading)
     val movieImagesResponse: StateFlow<MovieState<List<BackdropImage>?>> = _movieImagesResponse
+
+
 
     fun fetchMovieDetails(movieId: String) {
         viewModelScope.launch {
@@ -60,17 +66,32 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
         }
     }
 
-    fun fetchCastOfMovie(movieId: String) {
+    fun fetchCastAndCrewOfMovie(movieId: String) {
         viewModelScope.launch {
             try {
                 val response = repository.getMovieCast(movieId).first()
-                val castList = response.castList
-                _response3.emit(MovieState.Success(castList))
+                _response3.emit(MovieState.Success(response.castList))
             } catch (e: Exception) {
                 val errorMessage = "cast error, try again :*"
                 _response2.emit(MovieState.Error(errorMessage))
             }
         }
+    }
+
+    fun fetchCastOfMovie(movieId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getMovieCast(movieId).first()
+                _crewCastResponse.emit(MovieState.Success(Pair(response.castList, response.crewList)))
+            } catch (e: Exception) {
+                _crewCastResponse.emit(MovieState.Error("cast error, try again :*"))
+            }
+        }
+    }
+
+    fun getCurrentCastAndCrew(): Pair<List<Cast>, List<Crew>>? {
+        val data = crewCastResponse.value
+        return if (data is MovieState.Success) data.data else null
     }
 
     fun fetchMovieTrailer(movieId: String) {

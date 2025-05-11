@@ -66,6 +66,7 @@ import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_U
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Cast
+import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieCastComponent
@@ -99,6 +100,7 @@ fun MovieDetailsScreen(
     val similarMovieState by viewModel.similarMoviesResponse.collectAsState()
     val movieTrailerState by viewModel.movieTrailerResponse.collectAsState()
     val movieImagesState by viewModel.movieImagesResponse.collectAsState()
+    val movieCastAndCrewState by viewModel.crewCastResponse.collectAsState()
 
     var playTrailer by remember { mutableStateOf(false)}
 
@@ -106,9 +108,14 @@ fun MovieDetailsScreen(
         viewModel.fetchMovieDetails(movieId)
         viewModel.fetchMovieTrailer(movieId)
         viewModel.fetchCastOfMovie(movieId)
+        viewModel.fetchCastAndCrewOfMovie(movieId)
         viewModel.fetchSimilarMovies(movieId)
         viewModel.fetchMovieImages(movieId)
     }
+    val crewList = (movieCastAndCrewState as? MovieState.Success)?.data?.second ?: emptyList()
+
+    Log.d("CastResponse", "Details Screen - ${crewList}")
+
 
    Column(
        modifier = Modifier
@@ -424,8 +431,8 @@ fun MovieDetailsScreen(
 
        when(movieCastState) {
            is MovieState.Success -> {
-               val castList = ((movieCastState as MovieState.Success<List<Cast>?>).data as? List<Cast>) ?: emptyList()
-               MovieCastComponent(castList = castList)
+               val castList = ((movieCastState as MovieState.Success<List<Cast>?>).data) ?: emptyList()
+               MovieCastComponent(castList = castList, navController)
 
            }
 

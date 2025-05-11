@@ -75,6 +75,7 @@ import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_U
 import com.example.movieapp.data.remote.MediaAPI.Companion.IMAGE_BASE_URL
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.domain.model.Cast
+import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
@@ -660,7 +661,7 @@ fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
 }
 
 @Composable
-fun MovieCastComponent(castList: List<Cast>) {
+fun MovieCastComponent(castList: List<Cast>, navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -679,7 +680,12 @@ fun MovieCastComponent(castList: List<Cast>) {
                 color = Color.White.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Medium
             )
-            IconButton(onClick = { /* TODO: Action */ }) {
+            IconButton(onClick = {
+                navController.navigate(Screen.CastAndCrew.route) {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Default.ArrowForwardIos,
                     contentDescription = "See More",
