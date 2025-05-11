@@ -153,8 +153,14 @@ fun SetupNavGraph(navController: NavHostController) {
                 )
             }
         
-            composable(Screen.CastAndCrew.route) {
-                CastAndCrewScreen(navController = navController)
+            composable(
+                route = Screen.CastAndCrew.route + "/{movieId}",
+                arguments = listOf(navArgument("movieId") {type = NavType.StringType})
+            ) {
+                CastAndCrewScreen(
+                    navController = navController,
+                    movieId = it.arguments?.getString("movieId") ?: "1"
+                )
             }    
         
             composable(

@@ -68,7 +68,11 @@ import com.example.movieapp.util.MovieState
 import kotlinx.coroutines.flow.collect
 
 @Composable
-fun CastAndCrewScreen(navController: NavController, viewModel: MovieDetailsViewModel = hiltViewModel()) {
+fun CastAndCrewScreen(navController: NavController, viewModel: MovieDetailsViewModel = hiltViewModel(), movieId: String) {
+
+    LaunchedEffect(movieId) {
+        viewModel.fetchCastOfMovie(movieId)
+    }
 
     val castCrewState by viewModel.crewCastResponse.collectAsState()
 
@@ -268,7 +272,7 @@ fun CastItemBigger(cast: Cast) {
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
-                    .padding(bottom = 2.dp)
+                    .padding(bottom = 5.dp)
                     .fillMaxWidth(),
                 maxLines = 1
             )
@@ -355,7 +359,7 @@ fun CrewItemBigger(crew: Crew) {
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
-                    .padding(bottom = 2.dp)
+                    .padding(bottom = 5.dp)
                     .fillMaxWidth(),
                 maxLines = 1
             )

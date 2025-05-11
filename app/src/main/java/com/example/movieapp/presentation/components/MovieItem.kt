@@ -661,7 +661,7 @@ fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
 }
 
 @Composable
-fun MovieCastComponent(castList: List<Cast>, navController: NavController) {
+fun MovieCastComponent(castList: List<Cast>, navController: NavController, movieId: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -681,7 +681,7 @@ fun MovieCastComponent(castList: List<Cast>, navController: NavController) {
                 fontWeight = FontWeight.Medium
             )
             IconButton(onClick = {
-                navController.navigate(Screen.CastAndCrew.route) {
+                navController.navigate(Screen.CastAndCrew.route + "/$movieId") {
                     launchSingleTop = true
                     restoreState = true
                 }

@@ -432,7 +432,7 @@ fun MovieDetailsScreen(
        when(movieCastState) {
            is MovieState.Success -> {
                val castList = ((movieCastState as MovieState.Success<List<Cast>?>).data) ?: emptyList()
-               MovieCastComponent(castList = castList, navController)
+               MovieCastComponent(castList = castList, navController, movieId = movieId)
 
            }
 
