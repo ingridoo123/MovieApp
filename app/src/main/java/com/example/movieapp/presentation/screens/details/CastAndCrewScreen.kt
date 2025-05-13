@@ -26,6 +26,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -58,6 +60,7 @@ import coil.size.Size
 import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
+import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
@@ -166,8 +169,8 @@ fun CastAndCrewScreen(navController: NavController, viewModel: MovieDetailsViewM
                     modifier = Modifier.fillMaxSize()
                 ) {
                     when (selectedFilter) {
-                        "Actors" -> items(filteredList as List<Cast>) { CastItemBigger(it) }
-                        else -> items(filteredList as List<Crew>) { CrewItemBigger(it) }
+                        "Actors" -> items(filteredList as List<Cast>) { CastItemBigger(it, navController) }
+                        else -> items(filteredList as List<Crew>) { CrewItemBigger(it, navController) }
                     }
                 }
             }
@@ -204,7 +207,7 @@ fun FilterChip(text: String, isSelected: Boolean = false, onClick: () -> Unit) {
 }
 
 @Composable
-fun CastItemBigger(cast: Cast) {
+fun CastItemBigger(cast: Cast, navController: NavController) {
 
     val imageUrl = "${MediaAPI.BASE_BACKDROP_IMAGE_URL}${cast.profilePath}"
     val imagePainter = rememberAsyncImagePainter(
@@ -263,7 +266,10 @@ fun CastItemBigger(cast: Cast) {
         }
 
         Spacer(modifier = Modifier.width(10.dp))
-        Column {
+        Column(modifier = Modifier
+            .wrapContentWidth()
+            .wrapContentHeight()
+        ) {
 
             Text(
                 text = cast.name,
@@ -272,8 +278,7 @@ fun CastItemBigger(cast: Cast) {
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
-                    .padding(bottom = 5.dp)
-                    .fillMaxWidth(),
+                    .padding(bottom = 5.dp),
                 maxLines = 1
             )
 
@@ -284,14 +289,34 @@ fun CastItemBigger(cast: Cast) {
                 fontWeight = FontWeight.Normal,
                 color = componentLighter
             )
-
-
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = {
+                navController.navigate(Screen.Person.route + "/${cast.name}") {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForwardIos,
+                    contentDescription = "personScreen",
+                    tint = componentLighter,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+        }
+
+
+
     }
 }
 
 @Composable
-fun CrewItemBigger(crew: Crew) {
+fun CrewItemBigger(crew: Crew, navController: NavController) {
 
     val imageUrl = "${MediaAPI.BASE_BACKDROP_IMAGE_URL}${crew.profilePath}"
     val imagePainter = rememberAsyncImagePainter(
@@ -359,8 +384,7 @@ fun CrewItemBigger(crew: Crew) {
                 fontWeight = FontWeight.Medium,
                 color = Color.White.copy(alpha = 0.8f),
                 modifier = Modifier
-                    .padding(bottom = 5.dp)
-                    .fillMaxWidth(),
+                    .padding(bottom = 5.dp),
                 maxLines = 1
             )
 
@@ -371,8 +395,128 @@ fun CrewItemBigger(crew: Crew) {
                 fontWeight = FontWeight.Normal,
                 color = componentLighter
             )
-
-
         }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            IconButton(onClick = {
+                navController.navigate(Screen.Person.route + "/${crew.name}") {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForwardIos,
+                    contentDescription = "personScreen",
+                    tint = componentLighter,
+                    modifier = Modifier.size(25.dp)
+                )
+            }
+        }
+
+        
+    }
+}
+
+
+val castTest = Cast(job = "Actor", department = "elo", profilePath = "error" ?: "esa", name = "Piotr Adamczyk")
+
+
+@Composable
+@Preview(showBackground = true)
+fun CastItemBiggerPreview(cast: Cast = castTest) {
+
+    val imageUrl = "${MediaAPI.BASE_BACKDROP_IMAGE_URL}${cast.profilePath}"
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+    val imageState = imagePainter.state
+
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(110.dp)
+            .background(top_bar_component, shape = RoundedCornerShape(10.dp))
+            .padding(horizontal = 5.dp, vertical = 5.dp)
+            .clip(RoundedCornerShape(10.dp)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .background(color = component, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageState is AsyncImagePainter.State.Success) {
+                val imageBitmap = imageState.result.drawable.toBitmap()
+
+                Image(
+                    bitmap = imageBitmap.asImageBitmap(),
+                    contentDescription = "castImage",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Icon(
+                    imageVector = Icons.Default.ImageNotSupported,
+                    contentDescription = "error",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .padding(5.dp),
+                    tint = componentLighter
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Loading) {
+                AnimatedShimmerItem()
+            }
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(modifier = Modifier
+            .wrapContentWidth()
+            .wrapContentHeight()
+        ) {
+
+            Text(
+                text = cast.name,
+                fontFamily = netflixFamily,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.8f),
+                modifier = Modifier
+                    .padding(bottom = 5.dp),
+                maxLines = 1
+            )
+
+            Text(
+                text = "Actor",
+                fontFamily = netflixFamily,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Normal,
+                color = componentLighter
+            )
+        }
+        Spacer(modifier = Modifier.width(20.dp))
+        Icon(
+            imageVector = Icons.Default.ArrowForwardIos,
+            contentDescription = "Arrow Icon",
+            tint = Color.Red,
+            modifier = Modifier.size(25.dp)
+        )
+
+
     }
 }
