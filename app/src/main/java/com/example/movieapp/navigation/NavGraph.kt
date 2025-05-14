@@ -31,6 +31,8 @@ import com.example.movieapp.presentation.screens.all_screen.AllGenresScreen
 import com.example.movieapp.presentation.screens.details.CastAndCrewScreen
 import com.example.movieapp.presentation.screens.details.MovieDetailsScreen
 import com.example.movieapp.presentation.screens.details.PersonScreen
+import com.example.movieapp.presentation.screens.details.SimilarMoviesComponent
+import com.example.movieapp.presentation.screens.details.SimilarMoviesScreen
 import com.example.movieapp.presentation.screens.favourite.FavouriteScreen
 import com.example.movieapp.presentation.screens.home.HomeViewModel
 
@@ -170,6 +172,16 @@ fun SetupNavGraph(navController: NavHostController) {
                 PersonScreen(
                     navController = navController,
                     personName = it.arguments?.getString("personName") ?: "Jack Black"
+                )
+            }
+
+            composable(
+                route = Screen.SimilarMovies.route + "/{movieId}",
+                arguments = listOf(navArgument("movieId") {type = NavType.StringType})
+            )  {
+                SimilarMoviesScreen(
+                    navController = navController,
+                    movieId = it.arguments?.getString("movieId") ?: "1"
                 )
             }
         

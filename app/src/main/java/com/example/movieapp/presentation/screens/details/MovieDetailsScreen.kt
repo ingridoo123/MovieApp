@@ -68,6 +68,7 @@ import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Trailer
+import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieCastComponent
 import com.example.movieapp.presentation.components.MovieCastLoading
@@ -450,7 +451,7 @@ fun MovieDetailsScreen(
            is MovieState.Success -> {
                val similarList = (similarMovieState as MovieState.Success<MovieResponse?>).data
                if(similarList != null) {
-                    SimilarMoviesComponent(navController = navController, movie = similarList)
+                    SimilarMoviesComponent(navController = navController, movie = similarList, movieId)
                }
            }
 
@@ -564,7 +565,7 @@ fun YoutubePlayer(
 }
 
 @Composable
-fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse) {
+fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse, movieId: String) {
     val movieList = movie.results
 
     Column(
@@ -585,7 +586,12 @@ fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium
             )
-            IconButton(onClick = { /* TODO: Action */ }) {
+            IconButton(onClick = {
+                navController.navigate(Screen.SimilarMovies.route + "/$movieId") {
+                    launchSingleTop = true
+                    restoreState = true
+                }
+            }) {
                 Icon(
                     imageVector = Icons.Default.ArrowForwardIos,
                     contentDescription = "See More",

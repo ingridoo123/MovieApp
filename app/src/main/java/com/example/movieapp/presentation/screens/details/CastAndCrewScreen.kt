@@ -164,6 +164,7 @@ fun CastAndCrewScreen(navController: NavController, viewModel: MovieDetailsViewM
             }
 
             is MovieState.Success -> {
+
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxSize()

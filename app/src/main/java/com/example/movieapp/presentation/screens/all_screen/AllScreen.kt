@@ -78,7 +78,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
     ) {
         Box(modifier = Modifier
             .fillMaxWidth()
-            .height(85.dp)
+            .height(75.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(color = top_bar_component),
 
