@@ -166,12 +166,12 @@ fun SetupNavGraph(navController: NavHostController) {
                 )
             }
             composable(
-                route = Screen.Person.route + "/{personName}",
-                arguments = listOf(navArgument("personName") {type = NavType.StringType})
+                route = Screen.Person.route + "/{personId}",
+                arguments = listOf(navArgument("personId") {type = NavType.StringType})
             ) {
                 PersonScreen(
                     navController = navController,
-                    personName = it.arguments?.getString("personName") ?: "Jack Black"
+                    personId = it.arguments?.getString("personId") ?: "1"
                 )
             }
 

@@ -10,6 +10,7 @@ import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.domain.model.Person
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.util.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,6 +40,9 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
     private val _movieImagesResponse: MutableStateFlow<MovieState<List<BackdropImage>?>> = MutableStateFlow(MovieState.Loading)
     val movieImagesResponse: StateFlow<MovieState<List<BackdropImage>?>> = _movieImagesResponse
+
+    private val _personDetailsResponse: MutableStateFlow<MovieState<Person?>> = MutableStateFlow(MovieState.Loading)
+    val personDetailsResponse: StateFlow<MovieState<Person?>> = _personDetailsResponse
 
 
 
@@ -73,7 +77,7 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
                 _response3.emit(MovieState.Success(response.castList))
             } catch (e: Exception) {
                 val errorMessage = "cast error, try again :*"
-                _response2.emit(MovieState.Error(errorMessage))
+                _response3.emit(MovieState.Error(errorMessage))
             }
         }
     }
@@ -89,10 +93,10 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
         }
     }
 
-    fun getCurrentCastAndCrew(): Pair<List<Cast>, List<Crew>>? {
-        val data = crewCastResponse.value
-        return if (data is MovieState.Success) data.data else null
-    }
+//    fun getCurrentCastAndCrew(): Pair<List<Cast>, List<Crew>>? {
+//        val data = crewCastResponse.value
+//        return if (data is MovieState.Success) data.data else null
+//    }
 
     fun fetchMovieTrailer(movieId: String) {
         viewModelScope.launch {
@@ -114,6 +118,17 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
             } catch (e: Exception) {
                 val errorMessage = "images error, try again :*"
                 _movieImagesResponse.emit(MovieState.Error(errorMessage))
+            }
+        }
+    }
+
+    fun fetchPersonDetails(personId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getPersonDetails(personId).first()
+                _personDetailsResponse.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _personDetailsResponse.emit(MovieState.Error("Error fetching person details: $e"))
             }
         }
     }

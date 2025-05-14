@@ -6,6 +6,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Cast(
+    @SerializedName("id")
+    val id: Int,
     @SerializedName("known_for_department")
     val department: String,
     @SerializedName("name")

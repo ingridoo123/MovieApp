@@ -154,7 +154,7 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
                 painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + movieInfo!!.backdropPath),
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(350.dp)
+                modifier = Modifier.fillMaxWidth().height(350.dp) //usunalem fillMaxWidth zobaczym jak teraz bedzie
             )
             Box(
                 modifier = Modifier
@@ -706,7 +706,7 @@ fun MovieCastComponent(castList: List<Cast>, navController: NavController, movie
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     columnItems.forEach { cast ->
-                        CastItem(cast = cast)
+                        CastItem(cast = cast, navController)
                     }
                 }
                 
@@ -718,7 +718,7 @@ fun MovieCastComponent(castList: List<Cast>, navController: NavController, movie
 
 
 @Composable
-fun CastItem(cast: Cast) {
+fun CastItem(cast: Cast, navController: NavController) {
 
     val imageUrl = "${BASE_BACKDROP_IMAGE_URL}${cast.profilePath}"
     val imagePainter = rememberAsyncImagePainter(
@@ -734,6 +734,7 @@ fun CastItem(cast: Cast) {
         modifier = Modifier
             .width(210.dp)
             .height(60.dp)
+            .clickable { navController.navigate(Screen.Person.route + "/${cast.id}") }
             .background(top_bar_component, shape = RoundedCornerShape(10.dp))
             .padding(horizontal = 5.dp, vertical = 5.dp)
             .clip(RoundedCornerShape(10.dp)),

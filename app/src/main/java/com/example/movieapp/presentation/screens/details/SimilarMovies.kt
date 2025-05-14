@@ -141,8 +141,8 @@ fun SimilarMoviesScreen(navController: NavController, movieId: String, viewModel
                 ) {
                     if(similarList != null) {
                         val filteredSimilarList = similarList.results.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi"}
-                        items(similarList.results.size) { index ->
-                            similarList.results[index].let {
+                        items(filteredSimilarList.size) { index ->
+                            filteredSimilarList[index].let {
                                 val genre = it.genreIds?.firstOrNull()?.let { genreMap[it] } ?: "N/A"
                                 MovieItemAllGenreScreen(movie = it, navController = navController, genre = genre)
                             }

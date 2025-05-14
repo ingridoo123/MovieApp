@@ -297,7 +297,7 @@ fun CastItemBigger(cast: Cast, navController: NavController) {
             horizontalArrangement = Arrangement.End
         ) {
             IconButton(onClick = {
-                navController.navigate(Screen.Person.route + "/${cast.name}") {
+                navController.navigate(Screen.Person.route + "/${cast.id}") {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -403,7 +403,7 @@ fun CrewItemBigger(crew: Crew, navController: NavController) {
             horizontalArrangement = Arrangement.End
         ) {
             IconButton(onClick = {
-                navController.navigate(Screen.Person.route + "/${crew.name}") {
+                navController.navigate(Screen.Person.route + "/${crew.id}") {
                     launchSingleTop = true
                     restoreState = true
                 }
@@ -422,7 +422,7 @@ fun CrewItemBigger(crew: Crew, navController: NavController) {
 }
 
 
-val castTest = Cast(job = "Actor", department = "elo", profilePath = "error" ?: "esa", name = "Piotr Adamczyk")
+val castTest = Cast(job = "Actor", department = "elo", profilePath = "error" ?: "esa", name = "Piotr Adamczyk", id = 1)
 
 
 @Composable

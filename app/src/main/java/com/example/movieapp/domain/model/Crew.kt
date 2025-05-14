@@ -6,6 +6,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Crew(
+    @SerializedName("id")
+    val id: Int,
     @SerializedName("name")
     val name: String,
     @SerializedName("profile_path")
