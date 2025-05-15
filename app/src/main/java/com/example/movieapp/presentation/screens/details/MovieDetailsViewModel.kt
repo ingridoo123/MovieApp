@@ -1,11 +1,13 @@
 package com.example.movieapp.presentation.screens.details
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.data.remote.respond.BackdropImage
 import com.example.movieapp.data.remote.respond.CastResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
+import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
@@ -43,6 +45,9 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
     private val _personDetailsResponse: MutableStateFlow<MovieState<Person?>> = MutableStateFlow(MovieState.Loading)
     val personDetailsResponse: StateFlow<MovieState<Person?>> = _personDetailsResponse
+
+    private val _personMovieCreditsResponse: MutableStateFlow<MovieState<PersonMovieCreditsResponse?>> = MutableStateFlow(MovieState.Loading)
+    val personMovieCreditsResponse: StateFlow<MovieState<PersonMovieCreditsResponse?>> = _personMovieCreditsResponse
 
 
 
@@ -127,11 +132,63 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
             try {
                 val response = repository.getPersonDetails(personId).first()
                 _personDetailsResponse.emit(MovieState.Success(response))
+                fetchPersonMovieCredits(personId,response.department)
             } catch (e: Exception) {
                 _personDetailsResponse.emit(MovieState.Error("Error fetching person details: $e"))
             }
         }
     }
+
+    fun fetchPersonMovieCredits(personId: String, department: String?) {
+        viewModelScope.launch {
+            _personMovieCreditsResponse.emit(MovieState.Loading)
+            try {
+                val response = repository.getPersonMovieCredits(personId).first()
+                _personMovieCreditsResponse.emit(MovieState.Success(response))
+                ///processAndLogMovieCredits(response, department, personId)
+
+            } catch (e: Exception) {
+                _personMovieCreditsResponse.emit(MovieState.Error("Error fetching person movie credits: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    /*private fun processAndLogMovieCredits(credits: PersonMovieCreditsResponse?, personDepartment: String?, personId:String) {
+        if (credits == null || personDepartment == null) return
+
+        val popularMoviesTitles = mutableListOf<String>()
+        val popularityThreshold = 10.00
+
+        when (personDepartment) {
+            "Acting" -> {
+                credits.cast
+                    .filter { it.popularity >= popularityThreshold || (it.voteAverage >= 7.30 && it.popularity >= 4.50)}
+                    .forEach { popularMoviesTitles.add(it.title) }
+                Log.d("PersonMovies", "Actor Movies $personId (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
+            }
+            "Directing", "Production", "Writing" -> {
+                credits.crew
+                    .filter {
+                        ((personDepartment == "Production" && it.job == "Producer") || (personDepartment == "Directing" && it.job == "Director") || (personDepartment == "Writing" && it.job == "Writer"))
+                                && (it.popularity >= popularityThreshold || (it.voteAverage >= 7.30 && it.popularity >= 4.50))
+                    }
+                    .forEach { popularMoviesTitles.add(it.title) }
+                Log.d("PersonMovies", "$personDepartment Movies (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
+            }
+            else -> {
+                val combinedMovies = (credits.cast.map { it.title to it.popularity } + credits.crew.map { it.title to it.popularity })
+                    .filter { it.second >= popularityThreshold }
+                    .map { it.first }
+                    .distinct()
+                popularMoviesTitles.addAll(combinedMovies)
+                Log.d("PersonMovies", "Movies for ${personDepartment} (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
+            }
+        }
+
+        if (popularMoviesTitles.isEmpty()) {
+            Log.d("PersonMovies", "No movies found for $personDepartment with popularity >= $popularityThreshold.")
+        }
+    }*/
 
 
 

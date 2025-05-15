@@ -567,6 +567,7 @@ fun YoutubePlayer(
 @Composable
 fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse, movieId: String) {
     val movieList = movie.results
+    val filteredMovieList = movieList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi"}
 
     Column(
         modifier = Modifier
@@ -605,8 +606,8 @@ fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse, m
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(movie.results.size) {
-                MovieItemSmallSimilar(movie = movieList[it],navController = navController)
+            items(filteredMovieList.size) {
+                MovieItemSmallSimilar(movie = filteredMovieList[it],navController = navController)
 
             }
         }

@@ -6,6 +6,7 @@ import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
+import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
@@ -81,7 +82,7 @@ interface MediaAPI {
         @Path("movie_id") filmId: Int,
         @Query("page") page: Int = 1,
         @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") language: String = "en"
+        @Query("language") language: String = "en-US"
     ): MovieResponse
 
     @GET("movie/{movie_id}")
@@ -104,6 +105,13 @@ interface MediaAPI {
         @Query("api_key") apiKey: String = API_KEY,
         @Query("language") language: String = "en-US"
     ): Person
+
+    @GET("person/{person_id}/movie_credits")
+    suspend fun getPersonMovieCredits(
+        @Path("person_id") personId: Int,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US"
+    ): PersonMovieCreditsResponse
 
     @GET("movie/{movie_id}/images")
     suspend fun getMovieImages(
