@@ -2,6 +2,7 @@ package com.example.movieapp.presentation.screens.home
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -82,10 +83,6 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         fetchTopRatedMovies()
     }
 
-//    @RequiresApi(Build.VERSION_CODES.S)
-//    fun registerNetwork(context: Context) {
-//        networkUtils.registerNetworkCallback(context)
-//    }
 
     val popularAllListState = repository.getAllMoviesPagination("popularAllListScreen").flow.cachedIn(viewModelScope)
     val discoverListState = repository.getAllMoviesPagination("discoverListScreen").flow.cachedIn(viewModelScope)
@@ -159,23 +156,6 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         }
     }
 
-
-    fun fetchMovieDetails(movieId: String) {
-        viewModelScope.launch {
-            try {
-                val response = repository.getMovieDetails(movieId).first()
-                _detailsMovieResponse.emit(MovieState.Success(response))
-                // Update the map with the new details
-                response?.let { details ->
-                    _movieDetailsMap.value = _movieDetailsMap.value + (movieId.toInt() to details)
-                }
-            } catch (e:Exception) {
-                val errorMessage = "An error occurred."
-                _detailsMovieResponse.emit(MovieState.Error(errorMessage))
-            }
-        }
-    }
-
     fun fetchPopularMovies() {
         viewModelScope.launch {
             try {
@@ -192,6 +172,7 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         viewModelScope.launch {
             try {
                 val response = repository.getTopRaredMovies().first()
+                Log.d("SplashScreen", "Top rated movies fetched: ${response?.results?.size}")
                 _response7.emit(MovieState.Success(response))
             } catch (e: Exception) {
                 val errorMessage = "Error top rated"
@@ -253,6 +234,7 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         viewModelScope.launch {
             try {
                 val response = repository.getMovieGenres().first()
+                Log.d("SplashScreen", "Genres fetched: ${response?.genres?.size}")
                 _response6.emit(MovieState.Success(response))
             } catch (e: Exception) {
                 val errorMessage = "Error genre response"
