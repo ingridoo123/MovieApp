@@ -422,17 +422,17 @@ fun GenreBlock(name: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(color = component)
+            .background(color = top_bar_component)
             .clickable { onClick() }
     ) {
         Text(
             modifier = Modifier.padding(vertical = 4.dp, horizontal = 10.dp),
             text = name,
             fontFamily = netflixFamily,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.Normal,
             fontSize = 13.sp,
             maxLines = 1,
-            color = Color.White.copy(alpha = 0.9f)
+            color = Color.White.copy(alpha = 0.8f)
         )
 
     }

@@ -134,7 +134,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(590.dp)
-                            .background(ShimmerDarkGray),
+                            .background(background),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -159,7 +159,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(590.dp)
-                        .background(ShimmerDarkGray),
+                        .background(background),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
@@ -187,7 +187,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         text = "Genres",
                         fontFamily = netflixFamily,
                         fontSize = 18.sp,
-                        fontWeight = FontWeight.Normal,
+                        fontWeight = FontWeight.Medium,
                         color = Color.White.copy(alpha = 0.8f)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
