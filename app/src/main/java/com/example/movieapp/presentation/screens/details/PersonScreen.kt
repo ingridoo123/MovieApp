@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.screens.details
 
+import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,6 +41,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -72,6 +74,8 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
 
     val personDetailsState by viewModel.personDetailsResponse.collectAsState()
     val personMovieCreditsResponse by viewModel.personMovieCreditsResponse.collectAsState()
+
+    val contextCurrent = LocalContext.current
 
     LaunchedEffect(personId) {
         if(personId.isNotEmpty()) {
@@ -142,7 +146,7 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(540.dp) // Wysokość obrazu
+                                    .height(540.dp)
                             )
                             Box(
                                 modifier = Modifier
@@ -192,7 +196,24 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                         .size(40.dp)
                                         .hazeChild(hazeState, shape = CircleShape)
                                         .clip(shape = CircleShape)
-                                        .clickable { }
+                                        .clickable {
+
+                                            val sendIntent = Intent().apply {
+                                                action = Intent.ACTION_SEND
+                                                val shareMessage = """
+                                                🎬 Check out ${person.name} on MovieApp!
+                                                
+                                                ${if (!person.biography.isNullOrBlank()) person.biography.take(180) + "..." else "Discover the works and career of this amazing talent."}
+                                                
+                                                Explore their full filmography and more in the MovieApp now!
+                                                👉 Download the app or visit: https://yourmovieapp.link/person/${person.id}
+                                                """.trimIndent()
+                                                putExtra(Intent.EXTRA_TEXT, shareMessage)
+                                                type = "text/plain"
+                                            }
+                                            val shareIntent = Intent.createChooser(sendIntent, null)
+                                            contextCurrent.startActivity(shareIntent)
+                                        }
                                         .padding(bottom = 2.dp)
                                         .background(Color.Transparent, shape = CircleShape),
                                     contentAlignment = Alignment.Center

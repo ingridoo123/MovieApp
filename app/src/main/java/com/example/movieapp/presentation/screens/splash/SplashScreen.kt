@@ -74,7 +74,7 @@ fun SplashScreen(
             Image(
                 painter = painterResource(id = R.drawable.clapperboard),
                 contentDescription = "App Logo",
-                modifier = Modifier.size(200.dp).rotate(rotation.value)
+                modifier = Modifier.size(175.dp).rotate(rotation.value)
             )
         }
     }

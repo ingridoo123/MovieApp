@@ -44,3 +44,28 @@ data class Search(
     @SerializedName("vote_count")
     val voteCount: Int?
 )
+
+fun Search.toMovie(): Movie? {
+    // If id or title is missing, return null (cannot display as Movie)
+    if (id == null || title == null) return null
+    return Movie(
+        adult = adult ?: false,
+        backdropPath = backdropPath,
+        posterPath = posterPath,
+        genreIds = genreIds,
+        genres = genres,
+        mediaType = mediaType,
+        id = id,
+        imdbId = imdbId,
+        originalLanguage = originalLanguage ?: "",
+        originalTitle = originalTitle ?: title,
+        overview = overview ?: "",
+        popularity = popularity ?: 0.0,
+        releaseDate = releaseDate ?: "N/A",
+        runtime = runtime,
+        title = title,
+        video = video ?: false,
+        voteAverage = voteAverage ?: 0.0,
+        voteCount = voteCount ?: 0
+    )
+}
