@@ -61,7 +61,7 @@ fun Search.toMovie(): Movie? {
         originalTitle = originalTitle ?: title,
         overview = overview ?: "",
         popularity = popularity ?: 0.0,
-        releaseDate = releaseDate ?: "N/A",
+        releaseDate = releaseDate,
         runtime = runtime,
         title = title,
         video = video ?: false,

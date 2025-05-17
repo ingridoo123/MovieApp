@@ -153,42 +153,7 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
         }
     }
 
-    /*private fun processAndLogMovieCredits(credits: PersonMovieCreditsResponse?, personDepartment: String?, personId:String) {
-        if (credits == null || personDepartment == null) return
 
-        val popularMoviesTitles = mutableListOf<String>()
-        val popularityThreshold = 10.00
-
-        when (personDepartment) {
-            "Acting" -> {
-                credits.cast
-                    .filter { it.popularity >= popularityThreshold || (it.voteAverage >= 7.30 && it.popularity >= 4.50)}
-                    .forEach { popularMoviesTitles.add(it.title) }
-                Log.d("PersonMovies", "Actor Movies $personId (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
-            }
-            "Directing", "Production", "Writing" -> {
-                credits.crew
-                    .filter {
-                        ((personDepartment == "Production" && it.job == "Producer") || (personDepartment == "Directing" && it.job == "Director") || (personDepartment == "Writing" && it.job == "Writer"))
-                                && (it.popularity >= popularityThreshold || (it.voteAverage >= 7.30 && it.popularity >= 4.50))
-                    }
-                    .forEach { popularMoviesTitles.add(it.title) }
-                Log.d("PersonMovies", "$personDepartment Movies (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
-            }
-            else -> {
-                val combinedMovies = (credits.cast.map { it.title to it.popularity } + credits.crew.map { it.title to it.popularity })
-                    .filter { it.second >= popularityThreshold }
-                    .map { it.first }
-                    .distinct()
-                popularMoviesTitles.addAll(combinedMovies)
-                Log.d("PersonMovies", "Movies for ${personDepartment} (Popularity >= $popularityThreshold): ${popularMoviesTitles.joinToString()}")
-            }
-        }
-
-        if (popularMoviesTitles.isEmpty()) {
-            Log.d("PersonMovies", "No movies found for $personDepartment with popularity >= $popularityThreshold.")
-        }
-    }*/
 
 
 

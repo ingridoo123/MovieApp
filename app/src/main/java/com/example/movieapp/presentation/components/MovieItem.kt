@@ -520,7 +520,7 @@ fun MovieItemAllGenreScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = movie.releaseDate.take(4),
+                    text = movie.releaseDate?.take(4) ?: "null",
                     fontFamily = netflixFamily,
                     color = componentLighter,
                     fontSize = 11.sp,
@@ -633,7 +633,7 @@ fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = if(movie.releaseDate.take(4).isNotEmpty()) movie.releaseDate.take(4) else "N/A",
+                    text = if(movie.releaseDate?.take(4)?.isNotEmpty() == true) movie.releaseDate.take(4) else "N/A",
                     fontFamily = netflixFamily,
                     color = componentLighter,
                     fontSize = 11.sp,

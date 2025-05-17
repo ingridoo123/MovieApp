@@ -190,7 +190,7 @@ fun MovieDetailsScreen(
                                contentAlignment = Alignment.Center
                            ) {
                                Text(
-                                   text = it.releaseDate.take(4),
+                                   text = if(it.releaseDate.isNotBlank()) it.releaseDate.take(4) else "N/A",
                                    fontFamily = netflixFamily,
                                    fontSize = 11.sp,
                                    fontWeight = FontWeight.Normal,
@@ -567,7 +567,7 @@ fun YoutubePlayer(
 @Composable
 fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse, movieId: String) {
     val movieList = movie.results
-    val filteredMovieList = movieList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi"}
+    val filteredMovieList = movieList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi" && it.voteAverage != 0.0}
 
     Column(
         modifier = Modifier

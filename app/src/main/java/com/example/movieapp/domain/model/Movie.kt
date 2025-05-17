@@ -31,7 +31,7 @@ data class Movie(
     @SerializedName("popularity")
     val popularity: Double,
     @SerializedName("release_date", alternate = ["first_air_date"])
-    val releaseDate: String,
+    val releaseDate: String?,
     @SerializedName("runtime")
     val runtime: Int?,
     @SerializedName("title", alternate = ["name"])

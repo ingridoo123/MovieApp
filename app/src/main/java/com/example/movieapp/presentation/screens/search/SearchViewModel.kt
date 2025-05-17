@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.screens.search
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -52,7 +53,8 @@ class SearchViewModel @Inject constructor(
                     searchParams = searchParam.value,
                     includeAdult
                 ).map { result ->
-                    result.filter { (it.title != null || it.originalName != null || it.originalTitle != null) && it.mediaType == "movie" }
+                    result.filter { (it.title != null && it.originalTitle != null && !it.releaseDate.isNullOrBlank() && it.voteAverage != 0.0 && it.backdropPath != null) && it.mediaType == "movie" }
+
                 }.cachedIn(viewModelScope)
             }
         }
