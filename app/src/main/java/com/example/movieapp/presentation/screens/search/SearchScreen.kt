@@ -2,6 +2,10 @@ package com.example.movieapp.presentation.screens.search
 
 import android.inputmethodservice.Keyboard
 import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,6 +43,7 @@ import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.RemoveCircleOutline
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.CircularProgressIndicator
@@ -91,6 +96,7 @@ import com.example.movieapp.domain.model.toMovie
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieItemAllGenreScreen
+import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
@@ -98,10 +104,13 @@ import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants.netflixFamily
 import com.example.movieapp.util.MovieState
 import org.jetbrains.annotations.Async
+import java.text.SimpleDateFormat
+import java.time.format.TextStyle
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel()) {
+fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel(), viewModel2: FavouriteViewModel = hiltViewModel()) {
 
     val searchResults = viewModel.multiSearchState.value.collectAsLazyPagingItems()
     val popularState by viewModel.popularMovieResponse.collectAsState()
@@ -111,7 +120,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     val movieImagesMap = viewModel.movieImagesMap
 
     var searchSubmitted by rememberSaveable { mutableStateOf(false) }
-
+    val context = LocalContext.current
 
 
 
@@ -122,18 +131,26 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         10770 to "TV Movie", 53 to "Thriller", 10752 to "War", 37 to "Western"
     )
 
-    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, skipHalfExpanded = true)
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden, skipHalfExpanded = true, animationSpec = tween(
+        durationMillis = 550,
+        easing = FastOutSlowInEasing
+    ))
 
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
-    var selectedGenre by remember { mutableStateOf<String>("N/A") }
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val isFavourite = remember { mutableStateOf(0) }
 
     LaunchedEffect(selectedMovie) {
         if (selectedMovie != null) {
+            viewModel2.isFavourite(selectedMovie!!.id)
             sheetState.show()
         } else {
             sheetState.hide()
         }
+    }
+
+
+    LaunchedEffect(viewModel2.isFavourite.value) {
+        isFavourite.value = viewModel2.isFavourite.value
     }
 
     ModalBottomSheetLayout(
@@ -141,7 +158,11 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         sheetContent = {
             Box(modifier = Modifier
                 .fillMaxWidth()
-                .border(width = 1.dp, color = top_bar_component, shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+                .border(
+                    width = 1.dp,
+                    color = top_bar_component,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
+                )
                 .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
                 .background(background)
                 .padding(20.dp)
@@ -166,6 +187,28 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
 
                         Button(
                             onClick = {
+                                val date = SimpleDateFormat.getDateInstance().format(Date())
+                                val imageUrl = movieImagesMap[movie.id]
+                                    ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }
+                                    ?.filePath
+                                if(isFavourite.value != 0 ) {
+                                    viewModel2.removeFromFavourites(movie.id)
+                                    Toast.makeText(context, "Removed from your Favourites", Toast.LENGTH_SHORT).show()
+                                    isFavourite.value = 0
+                                } else {
+                                    val entity = MediaEntity(
+                                        mediaId = movie.id,
+                                        imagePath = imageUrl ?: "",
+                                        title = movie.title,
+                                        releaseDate = movie.releaseDate ?: "N/A",
+                                        rating = movie.voteAverage ?: 0.0,
+                                        addedOn = date
+                                    )
+                                    viewModel2.addToFavourites(entity)
+                                    Toast.makeText(context, "Added to your Favourites", Toast.LENGTH_SHORT).show()
+                                    isFavourite.value = 1
+                                }
+
 
                             },
                             modifier = Modifier
@@ -173,9 +216,17 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                 .padding(bottom = 10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = top_bar_component)
                         ) {
-                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.White)
+                            Icon(
+                                imageVector = if (isFavourite.value != 0) Icons.Default.RemoveCircleOutline else Icons.Default.Add,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Add to Favourites", color = Color.White)
+                            Text(
+                                text = if (isFavourite.value != 0) "Remove from Favourites" else "Add to Favourites",
+                                color = Color.White,
+                                fontFamily = netflixFamily
+                            )
                         }
 
                         OutlinedButton(
@@ -483,8 +534,13 @@ fun CatalogTopBar(
                     .weight(1f)
                     .clip(RoundedCornerShape(10.dp)),
                 placeholder = {
-                    Text(text = "Search", fontSize = 14.sp, fontFamily = netflixFamily, color = componentLighter)
+                    Text(text = "Search", fontSize = 13.sp, fontFamily = netflixFamily, color = componentLighter)
                 },
+                textStyle = androidx.compose.ui.text.TextStyle(
+                    fontSize = 12.sp,
+                    fontFamily = netflixFamily,
+                    color = Color.White.copy(alpha = 0.8f)
+                ),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(

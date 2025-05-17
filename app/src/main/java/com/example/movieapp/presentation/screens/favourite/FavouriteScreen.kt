@@ -133,20 +133,6 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                 color = Color.White.copy(alpha = 0.8f)
             )
 
-            IconButton(
-                onClick = {
-                    if (!isEditMode) {
-                        navController.popBackStack()
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBackIosNew,
-                    contentDescription = "IosBack",
-                    tint = if (isEditMode) top_bar_component else Color.White.copy(alpha = 0.8f)
-                )
-            }
 
             if (isEditMode) {
                 Text(
