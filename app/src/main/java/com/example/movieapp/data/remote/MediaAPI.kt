@@ -51,13 +51,6 @@ interface MediaAPI {
         @Query("language") language: String = "en"
     ): MovieResponse
 
-    @GET("movie/{movie_id}/recommendations")
-    suspend fun getRecommendedMovies(
-        @Path("movie_id") movieId: Int,
-        @Query("page") page: Int = 0,
-        @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") language: String = "en"
-    ): MovieResponse
 
     @GET("discover/movie?")
     suspend fun getDiscoverMovies(
