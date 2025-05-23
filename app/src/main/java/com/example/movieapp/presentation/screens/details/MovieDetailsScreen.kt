@@ -136,6 +136,7 @@ fun MovieDetailsScreen(
                            ?.filePath
 
                        MovieDataItem(movieInfo = it, navController = navController, viewModel = viewModel2, imageUrl ?: "")
+                       Log.d("DetailsScreen", moviesInfo.originalLanguage)
                        Row(
                            modifier = Modifier
                                .fillMaxWidth()

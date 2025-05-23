@@ -249,7 +249,7 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
         ) {
             Image(painter = painterResource(id = R.drawable.ic_star), contentDescription = "star", modifier = Modifier.size(18.dp))
             Text(
-                text = movieInfo?.voteAverage.toString().take(3),
+                text = movieInfo?.voteAverage.toString().take(6),
                 fontFamily = netflixFamily,
                 color = background,
                 fontWeight = FontWeight.Medium,

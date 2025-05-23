@@ -100,7 +100,6 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
             is MovieState.Success -> {
                 val movies = (topRatedMovies as MovieState.Success<MovieResponse?>).data?.results.orEmpty()
 
-                // Przygotuj filtrowane filmy tylko raz przy zmianie danych
                 LaunchedEffect(movies) {
                     if(viewModel.cachedFilteredMovies.value.isEmpty()) {
                         isLoadingDetails = true
@@ -122,7 +121,6 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                 }
 
                 if (!isLoadingDetails && preparedMovies.isNotEmpty()) {
-                    // Pokazuj slider tylko gdy wszystkie szczegóły są załadowane
                     HomeSlider(
                         moviesList = preparedMovies,
                         movieDetailsMap = movieDetailsMap,

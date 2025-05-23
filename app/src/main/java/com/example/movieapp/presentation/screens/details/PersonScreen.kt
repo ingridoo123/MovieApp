@@ -54,6 +54,7 @@ import coil.compose.AsyncImage
 import com.example.movieapp.R
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.presentation.components.CircleLoader
 import com.example.movieapp.presentation.components.PersonMoviesComponent
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.componentLighter
@@ -86,6 +87,7 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
     val hazeState = remember {
         HazeState()
     }
+    Log.d("Personnn", personId)
 
     var personDepartment by remember { mutableStateOf("") }
 
@@ -94,19 +96,9 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
         modifier = Modifier
             .fillMaxSize()
             .background(background)
-            .verticalScroll(rememberScrollState())
     ) {
         when (val state = personDetailsState) {
-            is MovieState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
 
-            }
 
             is MovieState.Success -> {
                 val person = state.data
@@ -128,6 +120,7 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                             .fillMaxWidth()
                             .height(540.dp)
                             .background(background)
+                            .verticalScroll(rememberScrollState())
                     ) {
                         Box(
                             modifier = Modifier
@@ -203,7 +196,11 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                                 val shareMessage = """
                                                 🎬 Check out ${person.name} on MovieApp!
                                                 
-                                                ${if (!person.biography.isNullOrBlank()) person.biography.take(180) + "..." else "Discover the works and career of this amazing talent."}
+                                                ${
+                                                    if (!person.biography.isNullOrBlank()) person.biography.take(
+                                                        180
+                                                    ) + "..." else "Discover the works and career of this amazing talent."
+                                                }
                                                 
                                                 Explore their full filmography and more in the MovieApp now!
                                                 👉 Download the app or visit: https://yourmovieapp.link/person/${person.id}
@@ -292,7 +289,9 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
 
                             it.deathDay?.let { deathDay ->
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
@@ -314,7 +313,9 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
 
                             it.placeOfBirth?.let { place ->
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 10.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
@@ -342,7 +343,9 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                 else -> "Other/Unknown"
                             }
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
@@ -383,6 +386,21 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                     }
 
                 }
+            }
+            is MovieState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircleLoader(
+                        modifier = Modifier.size(100.dp),
+                        color = componentLighter,
+                        secondColor = null,
+                        tailLength = 250f
+                    )
+                }
+
             }
 
             is MovieState.Error -> {

@@ -25,14 +25,21 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val searchRepository: SearchRepositoryImpl
 ): ViewModel() {
-    private var _multiSearchState = mutableStateOf<Flow<PagingData<Search>>>(emptyFlow())
-    val multiSearchState: State<Flow<PagingData<Search>>> = _multiSearchState
+
+    private val _searchResults = MutableStateFlow<List<Search>>(emptyList())
+    val searchResults: StateFlow<List<Search>> = _searchResults
+
+    private val _searchLoading = MutableStateFlow(false)
+    val searchLoading: StateFlow<Boolean> = _searchLoading
 
     private val _response1: MutableStateFlow<MovieState<MovieResponse?>> = MutableStateFlow(MovieState.Loading)
     val popularMovieResponse: StateFlow<MovieState<MovieResponse?>> = _response1
@@ -42,6 +49,19 @@ class SearchViewModel @Inject constructor(
 
     var searchParam = mutableStateOf("")
 
+    private val _sortBy = mutableStateOf("Popular")
+    val sortBy: State<String> = _sortBy
+
+    private val _ratingRange = mutableStateOf(0f..9f)
+    val ratingRange: State<ClosedFloatingPointRange<Float>> = _ratingRange
+
+    private val _selectedCountry = mutableStateOf<String?>(null)
+    val selectedCountry: State<String?> = _selectedCountry
+
+    private val _selectedYear = mutableStateOf<Int?>(null)
+    val selectedYear: State<Int?> = _selectedYear
+
+
     init {
         fetchPopularMovies()
     }
@@ -49,21 +69,37 @@ class SearchViewModel @Inject constructor(
     fun searchRemoteMedia(includeAdult: Boolean) {
         viewModelScope.launch {
             if(searchParam.value.isNotEmpty()) {
-                _multiSearchState.value = searchRepository.multiSearch(
-                    searchParams = searchParam.value,
-                    includeAdult
-                ).map { result ->
-                    result.filter { (it.title != null && it.originalTitle != null && !it.releaseDate.isNullOrBlank() && it.voteAverage != 0.0 && it.backdropPath != null) && it.mediaType == "movie" }
-
-                }.cachedIn(viewModelScope)
+                _searchLoading.value = true
+                try {
+                    Log.d("SearchScreen","${_selectedYear.value.toString()} VIEWMODEL")
+                    searchRepository.multiSearchWithSorting(
+                        searchParams = searchParam.value,
+                        includeAdult = includeAdult,
+                        sortBy = _sortBy.value,
+                        ratingRange = _ratingRange.value,
+                        originalLanguage = _selectedCountry.value,
+                        year = _selectedYear.value
+                    ).collect { results ->
+                        _searchResults.value = results
+                        _searchLoading.value = false
+                    }
+                } catch (e: Exception) {
+                    _searchResults.value = emptyList()
+                    _searchLoading.value = false
+                }
             }
         }
     }
+
     fun fetchPopularMovies() {
         viewModelScope.launch {
             try {
-                val response = searchRepository.getPopularMovies().first()
-                _response1.emit(MovieState.Success(response))
+                searchRepository.getPopularMoviesWithSorting(
+                    sortBy = _sortBy.value,
+                    ratingRange = _ratingRange.value
+                ).collect {response ->
+                    _response1.emit(MovieState.Success(response))
+                }
             } catch (e: Exception) {
                 val errorMessage = "Error popular"
                 _response1.emit(MovieState.Error(errorMessage))
@@ -81,5 +117,71 @@ class SearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateSortBy(sortOption: String) {
+        _sortBy.value = sortOption
+
+        fetchPopularMovies()
+
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
+    fun updateSelectedCountry(country: String?) {
+        _selectedCountry.value = country
+        fetchPopularMovies()
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
+    fun updateSelectedYear(year: Int?) {
+        _selectedYear.value = year
+        fetchPopularMovies()
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
+    fun updateRatingRange(ratingRange: ClosedFloatingPointRange<Float>) {
+        _ratingRange.value = ratingRange
+        fetchPopularMovies()
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
+
+    fun resetAllFilters() {
+        _sortBy.value = "Popular"
+        _ratingRange.value = 0f..9f
+        _selectedCountry.value = null
+        _selectedYear.value = null
+        fetchPopularMovies()
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
+
+
+
+
+//    private fun applySortingToSearchResults(searchResults: List<Search>): List<Search> {
+//        return when(_sortBy.value) {
+//            "Newest" -> searchResults.sortedByDescending { search ->
+//                try {
+//                    SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//                        .parse(search.releaseDate ?: "1900-01-01")
+//                } catch(E: Exception) {
+//                    Date(0)
+//                }
+//            }
+//            "Popular" -> searchResults.sortedByDescending { it.voteAverage ?: 0.0 }
+//            "Rating" -> searchResults.sortedByDescending { it.popularity ?: 0.0 }
+//            else -> searchResults
+//        }
+//    }
 
 }
