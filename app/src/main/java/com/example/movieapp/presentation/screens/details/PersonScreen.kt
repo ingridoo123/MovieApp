@@ -92,354 +92,360 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
     var personDepartment by remember { mutableStateOf("") }
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(background)
-    ) {
-        when (val state = personDetailsState) {
+    when (val state = personDetailsState) {
+        is MovieState.Loading -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(background),
+                contentAlignment = Alignment.Center
+            ) {
+                CircleLoader(
+                    modifier = Modifier.size(100.dp),
+                    color = componentLighter,
+                    secondColor = null,
+                    tailLength = 250f
+                )
+            }
+        }
+
+        else -> {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(background)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                when (state) {
+                    is MovieState.Success -> {
+                        val person = state.data
+                        Log.d("PersonScreen","${person?.id}")
+                        if (person != null) {
+
+                            personDepartment = person.department
+                            val displayDepartment = when (person.department) {
+                                "Acting" -> "Actor"
+                                "Directing" -> "Director"
+                                "Production" -> "Producer"
+                                "Writing" -> "Writer"
+                                else -> person.department
+                            }
 
 
-            is MovieState.Success -> {
-                val person = state.data
-                Log.d("PersonScreen","${person?.id}")
-                if (person != null) {
-
-                    personDepartment = person.department
-                    val displayDepartment = when (person.department) {
-                        "Acting" -> "Actor"
-                        "Directing" -> "Director"
-                        "Production" -> "Producer"
-                        "Writing" -> "Writer"
-                        else -> person.department
-                    }
-
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(540.dp)
-                            .background(background)
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(540.dp)
-                                .haze(
-                                    state = hazeState,
-                                    backgroundColor = top_bar_component.copy(alpha = 0.7f),
-                                    tint = top_bar_component.copy(alpha = 0.2f),
-                                    blurRadius = 15.dp
-                                )
-                        ) {
-                            AsyncImage(
-                                model = BASE_BACKDROP_IMAGE_URL + person.profilePath,
-                                contentDescription = person.name,
-                                contentScale = ContentScale.Crop,
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(540.dp)
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        brush = Brush.verticalGradient(
-                                            colors = listOf(
-                                                Color.Transparent,
-                                                background.copy(0.5f),
-                                                background
-                                            ), startY = 100f
-                                        )
-                                    )
-                            )
-                        }
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(540.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 10.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    .background(background)
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .hazeChild(hazeState, shape = CircleShape)
-                                        .clip(shape = CircleShape)
-                                        .padding(end = 2.dp)
-                                        .clickable { navController.popBackStack() }
-                                        .background(Color.Transparent, shape = CircleShape),
-                                    contentAlignment = Alignment.Center
+                                        .fillMaxWidth()
+                                        .height(540.dp)
+                                        .haze(
+                                            state = hazeState,
+                                            backgroundColor = top_bar_component.copy(alpha = 0.7f),
+                                            tint = top_bar_component.copy(alpha = 0.2f),
+                                            blurRadius = 15.dp
+                                        )
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.ArrowBackIosNew,
-                                        contentDescription = "IosBack",
-                                        tint = Color.White.copy(alpha = 0.8f),
-                                        modifier = Modifier.size(25.dp)
+                                    AsyncImage(
+                                        model = BASE_BACKDROP_IMAGE_URL + person.profilePath,
+                                        contentDescription = person.name,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(540.dp)
+                                    )
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    colors = listOf(
+                                                        Color.Transparent,
+                                                        background.copy(0.5f),
+                                                        background
+                                                    ), startY = 100f
+                                                )
+                                            )
                                     )
                                 }
-                                Box(
+                                Column(
                                     modifier = Modifier
-                                        .size(40.dp)
-                                        .hazeChild(hazeState, shape = CircleShape)
-                                        .clip(shape = CircleShape)
-                                        .clickable {
-
-                                            val sendIntent = Intent().apply {
-                                                action = Intent.ACTION_SEND
-                                                val shareMessage = """
-                                                🎬 Check out ${person.name} on MovieApp!
-                                                
-                                                ${
-                                                    if (!person.biography.isNullOrBlank()) person.biography.take(
-                                                        180
-                                                    ) + "..." else "Discover the works and career of this amazing talent."
-                                                }
-                                                
-                                                Explore their full filmography and more in the MovieApp now!
-                                                👉 Download the app or visit: https://yourmovieapp.link/person/${person.id}
-                                                """.trimIndent()
-                                                putExtra(Intent.EXTRA_TEXT, shareMessage)
-                                                type = "text/plain"
-                                            }
-                                            val shareIntent = Intent.createChooser(sendIntent, null)
-                                            contextCurrent.startActivity(shareIntent)
+                                        .fillMaxWidth()
+                                        .height(540.dp)
+                                ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 10.dp, vertical = 10.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .hazeChild(hazeState, shape = CircleShape)
+                                                .clip(shape = CircleShape)
+                                                .padding(end = 2.dp)
+                                                .clickable { navController.popBackStack() }
+                                                .background(Color.Transparent, shape = CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.ArrowBackIosNew,
+                                                contentDescription = "IosBack",
+                                                tint = Color.White.copy(alpha = 0.8f),
+                                                modifier = Modifier.size(25.dp)
+                                            )
                                         }
-                                        .padding(bottom = 2.dp)
-                                        .background(Color.Transparent, shape = CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.IosShare,
-                                        contentDescription = "IosBack",
-                                        tint = Color.White.copy(alpha = 0.8f),
-                                        modifier = Modifier.size(25.dp)
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(370.dp))
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize(),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center
-                            ) {
-                                Text(
-                                    text = person.name,
-                                    fontSize = 25.sp,
-                                    fontFamily = netflixFamily,
-                                    color = Color.White.copy(alpha = 0.8f),
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .height(32.dp)
-                                        .wrapContentWidth()
-                                        .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
-                                        .background(
-                                            color = Color.Transparent,
-                                            shape = RoundedCornerShape(20.dp)
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .hazeChild(hazeState, shape = CircleShape)
+                                                .clip(shape = CircleShape)
+                                                .clickable {
+
+                                                    val sendIntent = Intent().apply {
+                                                        action = Intent.ACTION_SEND
+                                                        val shareMessage = """
+                                                        🎬 Check out ${person.name} on MovieApp!
+                                                        
+                                                        ${
+                                                            if (!person.biography.isNullOrBlank()) person.biography.take(
+                                                                180
+                                                            ) + "..." else "Discover the works and career of this amazing talent."
+                                                        }
+                                                        
+                                                        Explore their full filmography and more in the MovieApp now!
+                                                        👉 Download the app or visit: https://yourmovieapp.link/person/${person.id}
+                                                        """.trimIndent()
+                                                        putExtra(Intent.EXTRA_TEXT, shareMessage)
+                                                        type = "text/plain"
+                                                    }
+                                                    val shareIntent = Intent.createChooser(sendIntent, null)
+                                                    contextCurrent.startActivity(shareIntent)
+                                                }
+                                                .padding(bottom = 2.dp)
+                                                .background(Color.Transparent, shape = CircleShape),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.IosShare,
+                                                contentDescription = "IosBack",
+                                                tint = Color.White.copy(alpha = 0.8f),
+                                                modifier = Modifier.size(25.dp)
+                                            )
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(370.dp))
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = person.name,
+                                            fontSize = 25.sp,
+                                            fontFamily = netflixFamily,
+                                            color = Color.White.copy(alpha = 0.8f),
+                                            fontWeight = FontWeight.Medium
                                         )
-                                        .padding(start = 20.dp, end = 20.dp, bottom = 1.dp),
-                                    contentAlignment = Alignment.Center
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .height(32.dp)
+                                                .wrapContentWidth()
+                                                .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                                                .background(
+                                                    color = Color.Transparent,
+                                                    shape = RoundedCornerShape(20.dp)
+                                                )
+                                                .padding(start = 20.dp, end = 20.dp, bottom = 1.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Text(
+                                                text = displayDepartment,
+                                                fontFamily = netflixFamily,
+                                                fontSize = 14.sp,
+                                                color = Color.White.copy(alpha = 0.8f),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            person.let {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 10.dp)
+
                                 ) {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 10.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Date of birth:",
+                                            fontSize = 15.sp,
+                                            fontFamily = netflixFamily,
+                                            color = componentLighter
+                                        )
+                                        Text(
+                                            text = formatDateWithAge(it.birthday, it.deathDay),
+                                            fontSize = 15.sp,
+                                            fontFamily = netflixFamily,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+                                    }
+                                    Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
+
+                                    it.deathDay?.let { deathDay ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 10.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "Date of death",
+                                                fontSize = 15.sp,
+                                                fontFamily = netflixFamily,
+                                                color = componentLighter
+                                            )
+                                            Text(
+                                                text = formatDateWithAge2(it.deathDay),
+                                                fontSize = 15.sp,
+                                                fontFamily = netflixFamily,
+                                                color = Color.White.copy(alpha = 0.8f)
+                                            )
+                                        }
+                                        Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
+                                    }
+
+
+                                    it.placeOfBirth?.let { place ->
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 10.dp),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text(
+                                                text = "Place of birth",
+                                                fontSize = 15.sp,
+                                                fontFamily = netflixFamily,
+                                                color = componentLighter,
+                                                modifier = Modifier.padding(end = 5.dp)
+                                            )
+                                            Text(
+                                                text = it.placeOfBirth,
+                                                fontSize = 15.sp,
+                                                fontFamily = netflixFamily,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                                color = Color.White.copy(alpha = 0.8f)
+                                            )
+                                        }
+                                    }
+                                    Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
+
+                                    val genderText = when (it.gender) {
+                                        1 -> "Female"
+                                        2 -> "Male"
+                                        else -> "Other/Unknown"
+                                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 10.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = "Gender",
+                                            fontSize = 15.sp,
+                                            fontFamily = netflixFamily,
+                                            color = componentLighter
+                                        )
+                                        Text(
+                                            text = genderText,
+                                            fontSize = 15.sp,
+                                            fontFamily = netflixFamily,
+                                            color = Color.White.copy(alpha = 0.8f)
+                                        )
+
+                                    }
+                                    Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
+
+                                    Spacer(modifier = Modifier.height(8.dp))
+
                                     Text(
-                                        text = displayDepartment,
+                                        text = "Biography",
+                                        fontSize = 18.sp,
                                         fontFamily = netflixFamily,
-                                        fontSize = 14.sp,
                                         color = Color.White.copy(alpha = 0.8f),
+                                        fontWeight = FontWeight.Medium
                                     )
-                                }
-                            }
-                        }
-                    }
-                    person.let {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "Date of birth:",
-                                    fontSize = 15.sp,
-                                    fontFamily = netflixFamily,
-                                    color = componentLighter
-                                )
-                                Text(
-                                    text = formatDateWithAge(it.birthday, it.deathDay),
-                                    fontSize = 15.sp,
-                                    fontFamily = netflixFamily,
-                                    color = Color.White.copy(alpha = 0.8f)
-                                )
-                            }
-                            Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
+                                    Spacer(modifier = Modifier.height(5.dp))
 
-                            it.deathDay?.let { deathDay ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
                                     Text(
-                                        text = "Date of death",
-                                        fontSize = 15.sp,
-                                        fontFamily = netflixFamily,
-                                        color = componentLighter
-                                    )
-                                    Text(
-                                        text = formatDateWithAge2(it.deathDay),
-                                        fontSize = 15.sp,
-                                        fontFamily = netflixFamily,
-                                        color = Color.White.copy(alpha = 0.8f)
-                                    )
-                                }
-                                Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
-                            }
-
-
-                            it.placeOfBirth?.let { place ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 10.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = "Place of birth",
-                                        fontSize = 15.sp,
+                                        text = it.biography ?: "No description, we are sorry :c",
+                                        fontSize = 12.sp,
                                         fontFamily = netflixFamily,
                                         color = componentLighter,
-                                        modifier = Modifier.padding(end = 5.dp)
-                                    )
-                                    Text(
-                                        text = it.placeOfBirth,
-                                        fontSize = 15.sp,
-                                        fontFamily = netflixFamily,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        color = Color.White.copy(alpha = 0.8f)
+                                        lineHeight = 17.sp
                                     )
                                 }
                             }
-                            Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
 
-                            val genderText = when (it.gender) {
-                                1 -> "Female"
-                                2 -> "Male"
-                                else -> "Other/Unknown"
-                            }
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 10.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "Gender",
-                                    fontSize = 15.sp,
-                                    fontFamily = netflixFamily,
-                                    color = componentLighter
-                                )
-                                Text(
-                                    text = genderText,
-                                    fontSize = 15.sp,
-                                    fontFamily = netflixFamily,
-                                    color = Color.White.copy(alpha = 0.8f)
-                                )
-
-                            }
-                            Divider(modifier = Modifier.fillMaxWidth(), thickness = 2.dp, color = top_bar_component)
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = "Biography",
-                                fontSize = 18.sp,
-                                fontFamily = netflixFamily,
-                                color = Color.White.copy(alpha = 0.8f),
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(5.dp))
-
-                            Text(
-                                text = it.biography ?: "No description, we are sorry :c",
-                                fontSize = 12.sp,
-                                fontFamily = netflixFamily,
-                                color = componentLighter,
-                                lineHeight = 17.sp
-                            )
                         }
                     }
 
-                }
-            }
-            is MovieState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircleLoader(
-                        modifier = Modifier.size(100.dp),
-                        color = componentLighter,
-                        secondColor = null,
-                        tailLength = 250f
-                    )
-                }
+                    is MovieState.Error -> {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(background),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                state.message, color = Color.Red, modifier = Modifier
+                                    .padding(16.dp)
+                            )
+                        }
 
-            }
+                    }
 
-            is MovieState.Error -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(background),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        state.message, color = Color.Red, modifier = Modifier
-                            .padding(16.dp)
-                    )
+                    else -> {}
                 }
 
+                Spacer(modifier = Modifier.height(20.dp))
+                when(val creditsState = personMovieCreditsResponse) {
+                    is MovieState.Loading -> {
+
+                    }
+                    is MovieState.Success -> {
+
+                        PersonMoviesComponent(
+                            navController = navController,
+                            movieCreditsResponse = creditsState.data,
+                            personDepartment = personDepartment
+                        )
+                    }
+                    is MovieState.Error -> {
+                        Text(
+                            creditsState.message, color = Color.Red, modifier = Modifier
+                                .padding(16.dp)
+                        )
+                    }
+                }
             }
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        when(val creditsState = personMovieCreditsResponse) {
-            is MovieState.Loading -> {
-
-            }
-            is MovieState.Success -> {
-
-                PersonMoviesComponent(
-                    navController = navController,
-                    movieCreditsResponse = creditsState.data,
-                    personDepartment = personDepartment
-                )
-            }
-            is MovieState.Error -> {
-                Text(
-                    creditsState.message, color = Color.Red, modifier = Modifier
-                        .padding(16.dp)
-                )
-            }
-        }
-
     }
 }
 

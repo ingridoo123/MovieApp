@@ -3,8 +3,18 @@ package com.example.movieapp.presentation.screens.search
 
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,12 +28,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +52,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBackIos
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ImageNotSupported
 import androidx.compose.material.icons.filled.IosShare
 import androidx.compose.material.icons.filled.MoreVert
@@ -121,7 +136,9 @@ val tmdbLanguageToCountryMap = mapOf(
     "zh" to "Chinese (China/HK/SG/TW)",
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalAnimationApi::class
+)
 @Composable
 fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel(), viewModel2: FavouriteViewModel = hiltViewModel()) {
 
@@ -136,6 +153,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     val context = LocalContext.current
 
 
+    var isGenresExpanded by rememberSaveable { mutableStateOf(false) }
 
     val genreMap = mapOf(
         28 to "Action", 12 to "Adventure", 16 to "Animation", 35 to "Comedy", 80 to "Crime",
@@ -143,6 +161,10 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         27 to "Horror", 10402 to "Music", 9648 to "Mystery", 10749 to "Romance", 878 to "Sci-Fi",
         10770 to "TV Movie", 53 to "Thriller", 10752 to "War", 37 to "Western"
     )
+
+    val initialGenres = listOf("Action", "Adventure", "Comedy", "Thriller", "Horror", "Documentary")
+    val expandedGenres = listOf("Animation", "Sci-Fi", "Romance", "Music")
+    val displayedGenres = if (isGenresExpanded) initialGenres + expandedGenres else initialGenres
 
 
 
@@ -337,110 +359,156 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                 )
                 Spacer(modifier = Modifier.height(20.dp))
                 if (searchQuery.isBlank()) {
-                    when (val state = popularState) {
-                        is MovieState.Loading -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
-                        }
-
-                        is MovieState.Success -> {
-                            val movies = state.data?.results ?: emptyList()
-
-                            LazyColumn(
-                                verticalArrangement = Arrangement.spacedBy(15.dp),
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                items(movies) { movie ->
-                                    if (movie.id !in movieImagesMap) {
-                                        LaunchedEffect(movie.id) {
-                                            viewModel.fetchMovieImages(movie.id)
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Genres",
+                            fontFamily = netflixFamily,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(0.8f),
+                            modifier = Modifier.padding(bottom = 15.dp)
+                        )
+                        LazyVerticalGrid(
+                            columns = GridCells.Fixed(2),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(initialGenres.size) { index ->
+                                val genre = initialGenres[index]
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(85.dp)
+                                        .clickable {
 
                                         }
-                                    }
-                                    //Log.d("SearchScreen","${movies.map { it }}")
-                                    val images = movieImagesMap[movie.id]
-                                    val imageUrl = movieImagesMap[movie.id]
-                                        ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }
-                                        ?.filePath
+                                        .background(
+                                            color = top_bar_component,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+                                        .clip(RoundedCornerShape(12.dp))
+                                ) {
+                                    Text(
+                                        text = genre,
+                                        fontFamily = netflixFamily,
+                                        color = Color.White.copy(0.8f),
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier
+                                            .align(Alignment.TopStart)
+                                            .padding(start = 10.dp, top = 10.dp)
+                                    )
 
-                                    when {
-                                        images == null -> {
-
-                                            LaunchedEffect(movie.id) {
-                                                viewModel.fetchMovieImages(movie.id)
-                                            }
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(100.dp)
-                                                    .clip(RoundedCornerShape(10.dp))
-                                                    .background(
-                                                        top_bar_component,
-                                                        shape = RoundedCornerShape(10.dp)
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxHeight()
-                                                        .width(175.dp)
-                                                        .clip(RoundedCornerShape(5.dp)),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    AnimatedShimmerItem()
-                                                }
-                                            }
-                                        }
-
-                                        imageUrl != null -> {
-                                            MovieItemSearchScreen(
-                                                movie = movie,
-                                                navController = navController,
-                                                genre = movie.genreIds?.firstOrNull()
-                                                    ?.let { genreMap[it] }
-                                                    ?: "N/A",
-                                                imageUrl = imageUrl,
-                                                onMoreClick = {movie ->
-                                                    selectedMovie = movie
-
-                                                }
+                                    Box(
+                                        modifier = Modifier.size(65.dp)
+                                            .align(Alignment.BottomEnd)
+                                            .offset(x = 6.dp, y = 6.dp)
+                                            .background(
+                                                color = Color.Blue,
+                                                shape = CircleShape
                                             )
-                                        }
-
-                                        else -> {
-                                            MovieItemSearchScreen(
-                                                movie = movie,
-                                                navController = navController,
-                                                genre = movie.genreIds?.firstOrNull()
-                                                    ?.let { genreMap[it] }
-                                                    ?: "N/A",
-                                                imageUrl = movie.backdropPath,
-                                                onMoreClick = {movie ->
-                                                    selectedMovie = movie
-
-                                                }
-                                            )
-                                        }
-                                    }
-
-                                }
-                                item {
-                                    Spacer(modifier = Modifier.height(80.dp))
+                                            .clip(CircleShape)
+                                    )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(100.dp))
-                        }
+                            items(expandedGenres.size) { index ->
+                                val genre = expandedGenres[index]
+                                AnimatedVisibility(
+                                    visible = isGenresExpanded,
+                                    enter = fadeIn(
+                                        animationSpec = tween(durationMillis = 300, delayMillis = index* 100)
+                                    ) + slideInVertically(
+                                        animationSpec = tween(
+                                            durationMillis = 300,
+                                            delayMillis = index * 100
+                                        ),
+                                        initialOffsetY = { it / 2 }
+                                    ) + expandVertically(
+                                        animationSpec = tween(durationMillis = 300, delayMillis = index * 100)
+                                    ),
+                                    exit = fadeOut(
+                                        animationSpec = tween(durationMillis = 200, delayMillis = (expandedGenres.size - 1 - index) * 50)
+                                    ) + slideOutVertically(
+                                        animationSpec = tween(durationMillis = 200, delayMillis = (expandedGenres.size - 1 - index) * 50),
+                                        targetOffsetY = { it / 2 }
+                                    ) + shrinkVertically(
+                                        animationSpec = tween(
+                                            durationMillis = 200,
+                                            delayMillis = (expandedGenres.size - 1 - index) * 50
+                                        )
+                                    )
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(85.dp)
+                                            .clickable {
 
-                        is MovieState.Error -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("Error: ${state.message}", color = Color.Red)
+                                            }
+                                            .background(
+                                                color = top_bar_component,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .clip(RoundedCornerShape(12.dp))
+                                    ) {
+                                        Text(
+                                            text = genre,
+                                            fontFamily = netflixFamily,
+                                            color = Color.White.copy(0.8f),
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            modifier = Modifier
+                                                .align(Alignment.TopStart)
+                                                .padding(start = 10.dp, top = 10.dp)
+                                        )
+                                        Box(
+                                            modifier = Modifier.size(65.dp)
+                                                .align(Alignment.BottomEnd)
+                                                .offset(x = 6.dp, y = 6.dp)
+                                                .background(
+                                                    color = Color.Blue,
+                                                    shape = CircleShape
+                                                )
+                                                .clip(CircleShape)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 5.dp)
+                                .clickable {
+                                    isGenresExpanded = !isGenresExpanded
+                                }
+                                .align(Alignment.CenterHorizontally),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (!isGenresExpanded) "See more" else "Show less",
+                                fontSize = 15.sp,
+                                color = Color.White.copy(0.8f),
+                                fontFamily = netflixFamily,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            AnimatedContent(
+                                targetState = isGenresExpanded,
+                                transitionSpec = {
+                                    fadeIn(animationSpec = tween(300)) with
+                                            fadeOut(animationSpec = tween(300))
+                                }
+                            ) { expanded ->
+                                Icon(
+                                    imageVector = if (!expanded) Icons.Default.ExpandMore else Icons.Default.ExpandLess,
+                                    contentDescription = if (!expanded) "Expand" else "Collapse",
+                                    tint = Color.White.copy(0.8f) ,
+                                    modifier = Modifier.size(22.dp)
+                                )
                             }
                         }
                     }
