@@ -456,14 +456,14 @@ fun MovieItemAllGenreScreen(
 
     Column(
         modifier = Modifier
-            .width(200.dp)
-            .height(350.dp)
+            .width(171.dp)
+            .height(299.dp)
     ) {
         Box(
             modifier = Modifier
-                .height(300.dp)
-                .width(200.dp)
-                .clip(RoundedCornerShape(15.dp)),
+                .height(256.dp)
+                .width(171.dp)
+                .clip(RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
             if (imageState is AsyncImagePainter.State.Success) {
@@ -475,7 +475,7 @@ fun MovieItemAllGenreScreen(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .clickable { navController.navigate(Screen.Details.route + "/${movie.id}") }
                 )
             }
@@ -486,7 +486,7 @@ fun MovieItemAllGenreScreen(
                     contentDescription = "error",
                     modifier = Modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(15.dp))
+                        .clip(RoundedCornerShape(12.dp))
                         .padding(16.dp),
                     tint = component
                 )

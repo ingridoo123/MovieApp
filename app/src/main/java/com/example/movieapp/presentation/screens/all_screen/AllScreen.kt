@@ -1,22 +1,33 @@
 package com.example.movieapp.presentation.screens.all_screen
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -35,7 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -44,11 +61,13 @@ import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import com.example.movieapp.R
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.presentation.components.MovieItemAllGenreScreen
 import com.example.movieapp.presentation.screens.home.HomeViewModel
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
+import com.example.movieapp.ui.theme.componentLighter
 import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants.netflixFamily
 
@@ -70,6 +89,25 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
         viewModel.setGenreData(genId.toInt())
     }
 
+    val tabs = listOf("All", "Movies", "Series")
+    var selectedTab by remember {
+        mutableStateOf("All")
+    }
+
+
+    val genreImages = mapOf(
+        "Action" to R.drawable.action,
+        "Adventure" to R.drawable.adventure,
+        "Animation" to R.drawable.animation,
+        "Comedy" to R.drawable.comedy,
+        "Documentary" to R.drawable.doc,
+        "Horror" to R.drawable.horror,
+        "Drama" to R.drawable.drama,
+        "Romance" to R.drawable.romance,
+        "Sci-Fi" to R.drawable.sci_fi,
+        "Thriller" to R.drawable.thriller
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,39 +116,123 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
     ) {
         Box(modifier = Modifier
             .fillMaxWidth()
-            .height(75.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(color = top_bar_component),
-
+            .height(300.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.Blue)
         ) {
+            Image(
+                modifier = Modifier.fillMaxSize(),
+                painter = painterResource(id = R.drawable.thriller_bc_b),
+                contentDescription = null,
+                contentScale = ContentScale.Crop
+            )
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            background.copy(0.7f)
+                        )
+                    )
+                ))
+
             Text(
                 text = title,
-                fontSize = 22.sp,
+                fontSize = 24.sp,
                 fontFamily = netflixFamily,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.White.copy(alpha = 0.8f)
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 10.dp, bottom = 10.dp),
+                color = Color.White.copy(alpha = 0.8f),
             )
 
-            IconButton(
-                onClick = {navController.popBackStack() },
-                modifier = Modifier.align(Alignment.CenterStart)
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 8.dp, top = 8.dp)
+                    .size(42.dp)
+                    .clip(CircleShape)
+                    .clickable { navController.popBackStack() }
+                    .background(top_bar_component.copy(0.6f), shape = CircleShape),
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBackIosNew,
                     contentDescription = "IosBack",
-                    tint = Color.White.copy(alpha = 0.8f)
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier
+                        .padding(end = 3.dp)
+                        .size(23.dp)
                 )
             }
+
         }
+        Spacer(modifier = Modifier.height(20.dp))
+
+
+        val selectedIndex = tabs.indexOf(selectedTab)
+        val animatedIndex by animateFloatAsState(
+            targetValue = selectedIndex.toFloat(),
+            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+            label = "tab_animation"
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.75f)
+                .height(35.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(top_bar_component, shape = RoundedCornerShape(12.dp))
+        ) {
+
+            Canvas(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                val tabWidth = size.width / tabs.size
+                val indicatorX = animatedIndex * tabWidth
+
+                drawRoundRect(
+                    color = component,
+                    topLeft = Offset(indicatorX, 0f),
+                    size = Size(tabWidth, size.height),
+                    cornerRadius = CornerRadius(12.dp.toPx())
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                tabs.forEach { tab ->
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clickable { selectedTab = tab },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = tab,
+                            color = if(selectedTab == tab) Color.White.copy(0.8f) else componentLighter,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = netflixFamily
+                        )
+                    }
+                }
+            }
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(20.dp))
-                .background(top_bar_component)
-                .padding(10.dp)
+                .padding(top = 10.dp),
         ) {
             if (genresAllMovies == null || genresAllMovies.loadState.refresh is LoadState.Loading) {
                 Box(
@@ -127,19 +249,25 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
             } else {
                 val listState = rememberLazyGridState()
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(150.dp),
+                    columns = GridCells.Fixed(2),
                     state = listState,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(genresAllMovies.itemCount) { index ->
                         genresAllMovies[index]?.let {
-                            MovieItemAllGenreScreen(
-                                movie = it,
-                                navController = navController,
-                                genre = genName
-                            )
+                            Box(modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 6.dp)
+                                .wrapContentWidth(Alignment.CenterHorizontally))  {
+                                MovieItemAllGenreScreen(
+                                    movie = it,
+                                    navController = navController,
+                                    genre = genName
+                                )
+                            }
+
                         }
                     }
                 }

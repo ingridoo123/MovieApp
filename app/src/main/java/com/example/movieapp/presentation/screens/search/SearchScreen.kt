@@ -85,7 +85,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RadialGradientShader
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -99,6 +104,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
@@ -162,8 +168,21 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         10770 to "TV Movie", 53 to "Thriller", 10752 to "War", 37 to "Western"
     )
 
-    val initialGenres = listOf("Action", "Adventure", "Comedy", "Thriller", "Horror", "Documentary")
-    val expandedGenres = listOf("Animation", "Sci-Fi", "Romance", "Music")
+    val genreImages = mapOf(
+        "Action" to R.drawable.action,
+        "Adventure" to R.drawable.adventure,
+        "Animation" to R.drawable.animation,
+        "Comedy" to R.drawable.comedy,
+        "Documentary" to R.drawable.doc,
+        "Horror" to R.drawable.horror,
+        "Drama" to R.drawable.drama,
+        "Romance" to R.drawable.romance,
+        "Sci-Fi" to R.drawable.sci_fi,
+        "Thriller" to R.drawable.thriller
+    )
+
+    val initialGenres = listOf("Action", "Adventure", "Comedy", "Thriller", "Horror", "Drama")
+    val expandedGenres = listOf("Animation", "Sci-Fi", "Romance", "Documentary")
     val displayedGenres = if (isGenresExpanded) initialGenres + expandedGenres else initialGenres
 
 
@@ -378,19 +397,24 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                         ) {
                             items(initialGenres.size) { index ->
                                 val genre = initialGenres[index]
+                                val genreId = genreMap.filterValues { it == genre }.keys.firstOrNull()
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(85.dp)
                                         .clickable {
-
+                                            navController.navigate(Screen.GenreWise.route + "/${genreId}" + "/${genre}")
                                         }
                                         .background(
                                             color = top_bar_component,
-                                            shape = RoundedCornerShape(12.dp)
+                                            shape = RoundedCornerShape(12.dp),
                                         )
                                         .clip(RoundedCornerShape(12.dp))
                                 ) {
+
+
+                                    Box(modifier = Modifier.fillMaxSize().background(brush = softRadialGradient))
+
                                     Text(
                                         text = genre,
                                         fontFamily = netflixFamily,
@@ -402,20 +426,25 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             .padding(start = 10.dp, top = 10.dp)
                                     )
 
-                                    Box(
-                                        modifier = Modifier.size(65.dp)
+                                    Image(
+                                        painter = painterResource(id = genreImages[genre]!!),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(75.dp)
                                             .align(Alignment.BottomEnd)
-                                            .offset(x = 6.dp, y = 6.dp)
+                                            .offset(x = 8.dp, y = 8.dp)
                                             .background(
                                                 color = Color.Blue,
                                                 shape = CircleShape
                                             )
-                                            .clip(CircleShape)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
                                     )
                                 }
                             }
                             items(expandedGenres.size) { index ->
                                 val genre = expandedGenres[index]
+                                val genreId = genreMap.filterValues { it == genre }.keys.firstOrNull()
                                 AnimatedVisibility(
                                     visible = isGenresExpanded,
                                     enter = fadeIn(
@@ -446,7 +475,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             .fillMaxWidth()
                                             .height(85.dp)
                                             .clickable {
-
+                                                navController.navigate(Screen.GenreWise.route + "/${genreId}" + "/${genre}")
                                             }
                                             .background(
                                                 color = top_bar_component,
@@ -454,6 +483,8 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             )
                                             .clip(RoundedCornerShape(12.dp))
                                     ) {
+                                        Box(modifier = Modifier.fillMaxSize().background(brush = softRadialGradient))
+
                                         Text(
                                             text = genre,
                                             fontFamily = netflixFamily,
@@ -464,15 +495,19 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                                 .align(Alignment.TopStart)
                                                 .padding(start = 10.dp, top = 10.dp)
                                         )
-                                        Box(
-                                            modifier = Modifier.size(65.dp)
+                                        Image(
+                                            painter = painterResource(id = genreImages[genre]!!),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(75.dp)
                                                 .align(Alignment.BottomEnd)
-                                                .offset(x = 6.dp, y = 6.dp)
+                                                .offset(x = 8.dp, y = 8.dp)
                                                 .background(
                                                     color = Color.Blue,
                                                     shape = CircleShape
                                                 )
-                                                .clip(CircleShape)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop
                                         )
                                     }
                                 }
@@ -493,7 +528,8 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                 fontSize = 15.sp,
                                 color = Color.White.copy(0.8f),
                                 fontFamily = netflixFamily,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(top = if(isGenresExpanded) 10.dp else 0.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             AnimatedContent(
@@ -733,6 +769,23 @@ fun CatalogTopBar(
     }
 
 
+}
+
+val softRadialGradient = object : ShaderBrush() {
+    override fun createShader(size: androidx.compose.ui.geometry.Size): Shader {
+        return RadialGradientShader(
+            colors = listOf(
+                component,
+                Color.Transparent
+            ),
+            center = androidx.compose.ui.geometry.Offset(
+                x = size.width * 0.8f,
+                y = size.height * 0.8f
+            ),
+            radius = size.width * 0.4f,
+            colorStops = listOf(0.2f, 1f)
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)

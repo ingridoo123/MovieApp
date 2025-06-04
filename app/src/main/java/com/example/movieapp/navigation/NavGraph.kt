@@ -201,12 +201,12 @@ fun SetupNavGraph(navController: NavHostController) {
                     slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight },
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     ) + fadeIn(
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     )
@@ -215,12 +215,12 @@ fun SetupNavGraph(navController: NavHostController) {
                     slideOutVertically(
                         targetOffsetY = { fullHeight -> fullHeight },
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     ) + fadeOut(
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     )
@@ -229,12 +229,12 @@ fun SetupNavGraph(navController: NavHostController) {
                     slideInVertically(
                         initialOffsetY = { fullHeight -> fullHeight },
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 990,
                             easing = FastOutSlowInEasing
                         )
                     ) + fadeIn(
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     )
@@ -243,12 +243,12 @@ fun SetupNavGraph(navController: NavHostController) {
                     slideOutVertically(
                         targetOffsetY = { fullHeight -> fullHeight },
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     ) + fadeOut(
                         animationSpec = tween(
-                            durationMillis = 700,
+                            durationMillis = 900,
                             easing = FastOutSlowInEasing
                         )
                     )
