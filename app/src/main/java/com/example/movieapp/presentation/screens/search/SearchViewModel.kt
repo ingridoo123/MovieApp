@@ -62,9 +62,7 @@ class SearchViewModel @Inject constructor(
     val selectedYear: State<Int?> = _selectedYear
 
 
-    init {
-        fetchPopularMovies()
-    }
+
 
     fun searchRemoteMedia(includeAdult: Boolean) {
         viewModelScope.launch {

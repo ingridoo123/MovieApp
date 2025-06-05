@@ -148,8 +148,7 @@ val tmdbLanguageToCountryMap = mapOf(
 @Composable
 fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hiltViewModel(), viewModel2: FavouriteViewModel = hiltViewModel()) {
 
-    //val searchResults = viewModel.multiSearchState.value.collectAsLazyPagingItems()
-    val popularState by viewModel.popularMovieResponse.collectAsState()
+
     var searchQuery by rememberSaveable {
         mutableStateOf("")
     }

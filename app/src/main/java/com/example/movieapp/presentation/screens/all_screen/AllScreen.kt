@@ -96,17 +96,19 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
 
 
     val genreImages = mapOf(
-        "Action" to R.drawable.action,
-        "Adventure" to R.drawable.adventure,
-        "Animation" to R.drawable.animation,
-        "Comedy" to R.drawable.comedy,
-        "Documentary" to R.drawable.doc,
-        "Horror" to R.drawable.horror,
-        "Drama" to R.drawable.drama,
-        "Romance" to R.drawable.romance,
-        "Sci-Fi" to R.drawable.sci_fi,
-        "Thriller" to R.drawable.thriller
+        "Action" to R.drawable.action_bc_c,
+        "Adventure" to R.drawable.adventure_bc_a,
+        "Animation" to R.drawable.animation_bc_c,
+        "Comedy" to R.drawable.comedy_bc_a,
+        "Documentary" to R.drawable.doc_bc_a,
+        "Horror" to R.drawable.horror_bc_a,
+        "Drama" to R.drawable.drama_bc_a,
+        "Romance" to R.drawable.romance_bc_a,
+        "Sci-Fi" to R.drawable.sci_fi_bc_b,
+        "Thriller" to R.drawable.thriller_bc_b
     )
+
+    val backgroundImage = genreImages[genName] ?: R.drawable.thriller_bc_b
 
     Column(
         modifier = Modifier
@@ -122,7 +124,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
         ) {
             Image(
                 modifier = Modifier.fillMaxSize(),
-                painter = painterResource(id = R.drawable.thriller_bc_b),
+                painter = painterResource(id = backgroundImage),
                 contentDescription = null,
                 contentScale = ContentScale.Crop
             )
@@ -132,7 +134,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            background.copy(0.7f)
+                            background.copy(0.85f)
                         )
                     )
                 ))
@@ -152,7 +154,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                 modifier = Modifier
                     .align(Alignment.TopStart)
                     .padding(start = 8.dp, top = 8.dp)
-                    .size(42.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .clickable { navController.popBackStack() }
                     .background(top_bar_component.copy(0.6f), shape = CircleShape),
@@ -164,7 +166,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                     tint = Color.White.copy(alpha = 0.8f),
                     modifier = Modifier
                         .padding(end = 3.dp)
-                        .size(23.dp)
+                        .size(21.dp)
                 )
             }
 
@@ -182,7 +184,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.75f)
-                .height(35.dp)
+                .height(30.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(top_bar_component, shape = RoundedCornerShape(12.dp))
         ) {
@@ -217,7 +219,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                         Text(
                             text = tab,
                             color = if(selectedTab == tab) Color.White.copy(0.8f) else componentLighter,
-                            fontSize = 14.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = netflixFamily
                         )

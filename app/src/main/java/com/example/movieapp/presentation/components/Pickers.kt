@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.components
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -14,23 +15,33 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ListItem
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
@@ -43,12 +54,16 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.movieapp.presentation.screens.search.tmdbLanguageToCountryMap
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
+import com.example.movieapp.ui.theme.top_bar_component
+import com.example.movieapp.ui.theme.whiteCopy
 import com.example.movieapp.util.Constants.netflixFamily
 import java.util.Calendar
 
@@ -113,54 +128,150 @@ fun YearPicker(
     onDismiss: () -> Unit
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-    val years = (currentYear downTo 1900).toList()
+
+    val years = (currentYear + 5 downTo currentYear - 25).toList()
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title ={ Text(text = "Select Year", fontFamily = netflixFamily, color = Color.White.copy(0.8f))},
+        title = {
+            Text(
+                text = "Select Year",
+                fontFamily = netflixFamily,
+                color = Color.White.copy(0.8f),
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         modifier = Modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(background, shape = RoundedCornerShape(10.dp))
-            .border(1.dp, componentLighter),
-        backgroundColor = background,
-        contentColor = Color.White.copy(0.8f),
-        text =  {
-                Column {
-                    TextButton(onClick = {
-                        onYearSelected(null)
-                        onDismiss()
-                    }) {
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        background,
+                        top_bar_component
+                    )
+                ),
+                shape = RoundedCornerShape(16.dp)
+            )
+            .border(
+                1.dp,
+                componentLighter.copy(0.3f),
+                RoundedCornerShape(16.dp)
+            ),
+        backgroundColor = Color.Transparent,
+        contentColor = Color.White,
+        text = {
+            Column(
+                modifier = Modifier.height(300.dp).padding(top = 5.dp) // Ograniczamy wysokość
+            ) {
+                // "All Years" option z lepszym stylem
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onYearSelected(null)
+                            onDismiss()
+                        }
+                        .padding(vertical = 8.dp),
+                    backgroundColor = if (currentSelectedYear == null)
+                        component else componentLighter.copy(0.1f),
+                    elevation = if (currentSelectedYear == null) 4.dp else 0.dp,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = null,
+                            tint = if (currentSelectedYear == null)
+                                whiteCopy else componentLighter,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             "All Years",
-                            color = if (currentSelectedYear == null) Color.White.copy(0.8f) else componentLighter
+                            color = if (currentSelectedYear == null)
+                                whiteCopy else componentLighter,
+                            fontSize = 16.sp,
+                            fontWeight = if (currentSelectedYear == null)
+                                FontWeight.Medium else FontWeight.Normal
                         )
                     }
-                    Divider(color = componentLighter.copy(alpha = 0.5f))
-                    LazyColumn(modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        items(years) {year ->
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Lista lat z lepszym stylem
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    items(years) { year ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onYearSelected(year)
+                                    onDismiss()
+                                }
+                                .animateContentSize(),
+                            backgroundColor = if (year == currentSelectedYear)
+                                component else componentLighter.copy(0.1f),
+                            elevation = if (year == currentSelectedYear) 4.dp else 0.dp,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable {
-                                        onYearSelected(year)
-                                        onDismiss()
-                                    }
-                                    .padding(horizontal = 12.dp )
-                                    .background(if(year == currentSelectedYear) component.copy(0.5f) else Color.Transparent)
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text(
                                     text = year.toString(),
-                                    color = if (year == currentSelectedYear) Color.White.copy(0.8f) else componentLighter
+                                    color = if (year == currentSelectedYear)
+                                        whiteCopy else componentLighter,
+                                    fontSize = 16.sp,
+                                    fontWeight = if (year == currentSelectedYear)
+                                        FontWeight.Medium else FontWeight.Normal
                                 )
+
+                                if (year == currentSelectedYear) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Selected",
+                                        tint = whiteCopy,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             }
-
                         }
-
                     }
                 }
+            }
         },
-        confirmButton = { /*TODO*/ })
+        confirmButton = {
+//            TextButton(
+//                onClick = onDismiss,
+//                modifier = Modifier
+//                    .background(
+//                        component.copy(0.8f),
+//                        RoundedCornerShape(8.dp)
+//                    )
+//                    .padding(horizontal = 8.dp)
+//            ) {
+//                Text(
+//                    "Close",
+//                    color = Color.White,
+//                    fontWeight = FontWeight.Medium
+//                )
+//            }
+        }
+    )
 }
 
 @Composable
