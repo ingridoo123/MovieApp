@@ -85,6 +85,8 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
         mutableStateOf(genName)
     }
     val genresAllMovies: LazyPagingItems<Movie>? = viewModel.genresWiseMovieListState?.collectAsLazyPagingItems()
+    val seriesAllMovies: LazyPagingItems<Movie>? = viewModel.seriesWiseListState?.collectAsLazyPagingItems()
+
     LaunchedEffect(key1 = genId) {
         viewModel.setGenreData(genId.toInt())
     }
@@ -236,7 +238,12 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                 .clip(RoundedCornerShape(20.dp))
                 .padding(top = 10.dp),
         ) {
-            if (genresAllMovies == null || genresAllMovies.loadState.refresh is LoadState.Loading) {
+            val itemsToDisplay = when (selectedTab) {
+                "Series" -> seriesAllMovies
+                else -> genresAllMovies
+            }
+
+            if (itemsToDisplay == null || itemsToDisplay.loadState.refresh is LoadState.Loading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -257,8 +264,8 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(genresAllMovies.itemCount) { index ->
-                        genresAllMovies[index]?.let {
+                    items(itemsToDisplay.itemCount) { index ->
+                        itemsToDisplay[index]?.let {
                             Box(modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 6.dp)

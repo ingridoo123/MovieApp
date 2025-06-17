@@ -63,9 +63,8 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     val allDetailsLoaded: StateFlow<Boolean> = _allDetailsLoaded
 
     var genresWiseMovieListState: Flow<PagingData<Movie>>? = null
+    var seriesWiseListState: Flow<PagingData<Movie>>? = null
 
-    private val networkUtils = NetworkUtils()
-    val networkType = networkUtils.networkType
 
     private val _refreshTrigger = MutableStateFlow(0)
     val refreshTrigger: StateFlow<Int> = _refreshTrigger
@@ -114,6 +113,7 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
 
     fun setGenreData(genreSelected: Int) {
         genresWiseMovieListState = repository.getGenresWiseMovie(genreSelected).flow.cachedIn(viewModelScope)
+        seriesWiseListState = repository.getSeriesByGenre(genreSelected).flow.cachedIn(viewModelScope)
     }
 
     fun resetDetailsLoaded() {

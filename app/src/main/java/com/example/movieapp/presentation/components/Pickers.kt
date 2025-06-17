@@ -129,7 +129,7 @@ fun YearPicker(
 ) {
     val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
-    val years = (currentYear + 5 downTo currentYear - 25).toList()
+    val years = (currentYear + 2 downTo currentYear - 100).toList()
 
     AlertDialog(
         onDismissRequest = onDismiss,

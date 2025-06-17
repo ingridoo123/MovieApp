@@ -4,6 +4,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.example.movieapp.data.paging.MovieGenrePagingSource
 import com.example.movieapp.data.paging.MoviePagingSource
+import com.example.movieapp.data.paging.SeriesGenrePagingSource
 import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
@@ -51,6 +52,16 @@ class HomeRepositoryImpl @Inject constructor(private val apiService: MediaAPI) {
                 enablePlaceholders = false
             ),
             pagingSourceFactory = { MovieGenrePagingSource(apiService,tags) }
+        )
+    }
+
+    fun getSeriesByGenre(tags: Int): Pager<Int, Movie> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { SeriesGenrePagingSource(apiService, tags) }
         )
     }
 

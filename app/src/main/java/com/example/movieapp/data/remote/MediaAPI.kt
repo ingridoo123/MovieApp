@@ -133,6 +133,16 @@ interface MediaAPI {
         @Query("language") language: String = "en"
     ): SearchResponse
 
+    //TV SERIES!!!!!!!!!!!!!
+
+    @GET("discover/tv")
+    suspend fun getSeriesByGenre(
+        @Query("with_genres") genresId: Int,
+        @Query("page") page: Int = 1,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en"
+    ): MovieResponse
+
 
 
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -101,7 +102,7 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
     val sortedMovies = remember(myMoviesDataOriginal, selectedSort) {
         myMoviesDataOriginal?.let { movies ->
             when (selectedSort) {
-                "Date added to the list" -> movies
+                "Date added to the list" -> movies.sortedBy { it.addedOn }
                 "Title (A-Z)" -> movies.sortedBy { it.title?.lowercase() ?: "" }
                 "Release date" -> movies.sortedByDescending { it.releaseDate ?: "" }
                 else -> movies
@@ -212,7 +213,8 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(15.dp)
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+                contentPadding = PaddingValues(bottom = 80.dp)
             ) {
 
                 items(
