@@ -112,8 +112,24 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     }
 
     fun setGenreData(genreSelected: Int) {
+
         genresWiseMovieListState = repository.getGenresWiseMovie(genreSelected).flow.cachedIn(viewModelScope)
-        seriesWiseListState = repository.getSeriesByGenre(genreSelected).flow.cachedIn(viewModelScope)
+
+        val seriesGenreId: Int? = when (genreSelected) {
+            28 -> 10759  // Action -> Action & Adventure
+            12 -> 10759  // Adventure -> Action & Adventure
+            53 -> 80     // Thriller -> Crime
+            878 -> 10765 // Sci-Fi -> Sci-Fi & Fantasy
+            27 -> null   // Horror -> Brak seriali
+            else -> genreSelected
+        }
+
+        if (seriesGenreId != null) {
+
+            seriesWiseListState = repository.getSeriesByGenre(seriesGenreId).flow.cachedIn(viewModelScope)
+        } else {
+            seriesWiseListState = null
+        }
     }
 
     fun resetDetailsLoaded() {

@@ -242,8 +242,20 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                 "Series" -> seriesAllMovies
                 else -> genresAllMovies
             }
-
-            if (itemsToDisplay == null || itemsToDisplay.loadState.refresh is LoadState.Loading) {
+            if (selectedTab == "Series" && genId == "27") {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Brak seriali dla kategorii horror",
+                        color = componentLighter,
+                        fontSize = 16.sp,
+                        fontFamily = netflixFamily
+                    )
+                }
+            }
+            else if (itemsToDisplay == null || itemsToDisplay.loadState.refresh is LoadState.Loading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
