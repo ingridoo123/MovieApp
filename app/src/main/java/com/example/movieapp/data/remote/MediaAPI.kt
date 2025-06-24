@@ -75,6 +75,17 @@ interface MediaAPI {
 
     ): MovieResponse
 
+    @GET("discover/movie")
+    suspend fun getRecommendedMovies(
+        @Query("page") page: Int = 1,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("sort_by") sortBy: String = "popularity.desc",
+        @Query("popularity.gte") popularityGte: Float = 35.0f,
+        @Query("vote_average.gte") voteAverageGte: Float = 5.5f,
+        @Query("vote_count.gte") voteCountGte: Int = 3000
+    ): MovieResponse
+
     @GET("movie/{movie_id}/similar")
     suspend fun getSimilarMovies(
         @Path("movie_id") filmId: Int,

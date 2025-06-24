@@ -53,6 +53,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     private val _response7: MutableStateFlow<MovieState<MovieResponse?>> = MutableStateFlow(MovieState.Loading)
     val topRatedMovieResponse: StateFlow<MovieState<MovieResponse?>> = _response7
 
+    private val _recommendedMovies: MutableStateFlow<MovieState<MovieResponse?>> = MutableStateFlow(MovieState.Loading)
+    val recommendedMovies: StateFlow<MovieState<MovieResponse?>> = _recommendedMovies
+
     private val _detailsMovieResponse: MutableStateFlow<MovieState<MovieDetailsDTO?>> = MutableStateFlow(MovieState.Loading)
     val detailsMovieResponse: StateFlow<MovieState<MovieDetailsDTO?>> = _detailsMovieResponse
 
@@ -73,9 +76,8 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     val cachedFilteredMovies: StateFlow<List<Movie>> = _cachedFilteredMovies
 
     init {
-        fetchPopularMovies()
         fetchDiscoverMovies()
-        fetchTrendingMovies()
+        fetchRecommendedMovies()
         fetchNowPlayingMovies()
         fetchUpcomingMovies()
         fetchGenreResponse()
@@ -94,10 +96,10 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
                 // Increment refresh trigger to force paging data refresh
                 _refreshTrigger.value++
 
-                // Refresh all non-paging data
+
                 fetchPopularMovies()
                 fetchDiscoverMovies()
-                fetchTrendingMovies()
+
                 fetchTopRatedMovies()
                 fetchNowPlayingMovies()
                 fetchUpcomingMovies()
@@ -180,6 +182,18 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
             } catch (e: Exception) {
                 val errorMessage = "Error popular"
                 _response1.emit(MovieState.Error(errorMessage))
+            }
+        }
+    }
+
+    fun fetchRecommendedMovies() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getRecommendedMovies().first()
+                _recommendedMovies.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                val errorMessage = "Error recommended"
+                _recommendedMovies.emit(MovieState.Error(errorMessage))
             }
         }
     }

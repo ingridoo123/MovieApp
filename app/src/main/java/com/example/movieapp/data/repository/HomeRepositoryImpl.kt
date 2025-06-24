@@ -11,6 +11,8 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.domain.model.Movie
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -68,6 +70,22 @@ class HomeRepositoryImpl @Inject constructor(private val apiService: MediaAPI) {
     fun getDiscoverMovies(): Flow<MovieResponse> = flow {
         val response = apiService.getDiscoverMovies(1)
         emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getRecommendedMovies(): Flow<MovieResponse> = flow {
+        coroutineScope {
+            val deferredPage1 = async { apiService.getRecommendedMovies(1) }
+            val deferredPage2 = async { apiService.getRecommendedMovies(2) }
+
+            val responsePage1 = deferredPage1.await()
+            val responsePage2 = deferredPage2.await()
+
+            val combinedResults = responsePage1.results + responsePage2.results
+            val sortedResults = combinedResults.distinctBy { it.id }.sortedByDescending { it.popularity }
+            val combinedResponse = responsePage1.copy(results = sortedResults)
+
+            emit(combinedResponse)
+        }
     }.flowOn(Dispatchers.IO)
 
     fun getTrendingMovies(): Flow<MovieResponse> = flow {

@@ -58,6 +58,7 @@ import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.AutoSlidingCarousel
 import com.example.movieapp.presentation.components.GenreBlock
 import com.example.movieapp.presentation.components.MovieItemLoadingPlaceholder
+import com.example.movieapp.presentation.components.MovieItemSmallSimilar
 import com.example.movieapp.presentation.components.NoInternetScreen
 import com.example.movieapp.presentation.components.ShimmerDarkGray
 import com.example.movieapp.ui.theme.background
@@ -71,12 +72,12 @@ import kotlinx.coroutines.delay
 @Composable
 fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hiltViewModel()) {
     val popularMoviesLazy = viewModel.popularAllListState.collectAsLazyPagingItems()
-    val popularMovies by viewModel.popularMovieResponse.collectAsState()
     val refreshTrigger by viewModel.refreshTrigger.collectAsState()
     val topRatedMovies by viewModel.topRatedMovieResponse.collectAsState()
     val movieDetailsMap by viewModel.movieDetailsMap.collectAsState()
     val allDetailsLoaded by viewModel.allDetailsLoaded.collectAsState()
     val genresMovieState by viewModel.genresMovieResponse.collectAsState()
+    val recommendedMovies by viewModel.recommendedMovies.collectAsState()
 
     var preparedMovies by remember { mutableStateOf(viewModel.cachedFilteredMovies.value) }
 
@@ -90,44 +91,75 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
     }
     Log.d("HOMEMOVIES", preparedMovies.map{ it.title }.toString())
 
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(color = background)
 
     ) {
-        when(topRatedMovies) {
-            is MovieState.Success -> {
-                val movies = (topRatedMovies as MovieState.Success<MovieResponse?>).data?.results.orEmpty()
+        item {
+            when(topRatedMovies) {
+                is MovieState.Success -> {
+                    val movies = (topRatedMovies as MovieState.Success<MovieResponse?>).data?.results.orEmpty()
 
-                LaunchedEffect(movies) {
-                    if(viewModel.cachedFilteredMovies.value.isEmpty()) {
-                        isLoadingDetails = true
-                        val filtered = movies.filter { it.originalLanguage == "en" && !it.title.contains("Lucy Shimmers and the") &&!it.title.contains("Gabriel") && !it.title.contains("Primal: Tales") }.shuffled().take(5)
-                        preparedMovies = filtered
-                        viewModel.cacheFilteredMovies(filtered)
+                    LaunchedEffect(movies) {
+                        if(viewModel.cachedFilteredMovies.value.isEmpty()) {
+                            isLoadingDetails = true
+                            val filtered = movies.filter { it.originalLanguage == "en" && !it.title.contains("Lucy Shimmers and the") &&!it.title.contains("Gabriel") && !it.title.contains("Primal: Tales") }.shuffled().take(5)
+                            preparedMovies = filtered
+                            viewModel.cacheFilteredMovies(filtered)
 
-                        viewModel.resetDetailsLoaded()
-                        viewModel.fetchAllMovieDetails(filtered.map { it.id.toString() })
+                            viewModel.resetDetailsLoaded()
+                            viewModel.fetchAllMovieDetails(filtered.map { it.id.toString() })
+                        }
+                    }
+
+                    LaunchedEffect(allDetailsLoaded) {
+                        if (allDetailsLoaded && preparedMovies.isNotEmpty()) {
+
+                            val allDetailsAvailable = preparedMovies.all { movieDetailsMap.containsKey(it.id) }
+                            isLoadingDetails = !allDetailsAvailable
+                        }
+                    }
+
+                    if (!isLoadingDetails && preparedMovies.isNotEmpty()) {
+                        HomeSlider(
+                            moviesList = preparedMovies,
+                            movieDetailsMap = movieDetailsMap,
+                            navController
+                        )
+                    } else {
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(590.dp)
+                                .background(background),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.9f)
+                                    .clip(
+                                        RoundedCornerShape(
+                                            bottomEnd = 15.dp,
+                                            bottomStart = 15.dp
+                                        )
+                                    )
+                                    .height(575.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                AnimatedShimmerItem()
+                            }
+
+                        }
                     }
                 }
-
-                LaunchedEffect(allDetailsLoaded) {
-                    if (allDetailsLoaded && preparedMovies.isNotEmpty()) {
-
-                        val allDetailsAvailable = preparedMovies.all { movieDetailsMap.containsKey(it.id) }
-                        isLoadingDetails = !allDetailsAvailable
-                    }
+                is MovieState.Error -> {
+                    val errorMessage = (topRatedMovies as MovieState.Error).message
+                    Text(text = errorMessage, fontSize = 30.sp, color = Color.Red)
                 }
-
-                if (!isLoadingDetails && preparedMovies.isNotEmpty()) {
-                    HomeSlider(
-                        moviesList = preparedMovies,
-                        movieDetailsMap = movieDetailsMap,
-                        navController
-                    )
-                } else {
-
+                is MovieState.Loading -> {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -148,72 +180,111 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                     }
                 }
             }
-            is MovieState.Error -> {
-                val errorMessage = (topRatedMovies as MovieState.Error).message
-                Text(text = errorMessage, fontSize = 30.sp, color = Color.Red)
-            }
-            is MovieState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(590.dp)
-                        .background(background),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth(0.9f)
-                            .clip(RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp))
-                            .height(575.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AnimatedShimmerItem()
-                    }
-
-                }
-            }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp)
-        ) {
-            when(genresMovieState) {
-                is MovieState.Success -> {
-                    val genres = (genresMovieState as MovieState.Success<GenreResponse?>).data?.genres
-                    Text(
-                        text = "Genres",
-                        fontFamily = netflixFamily,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(genres?.size ?: 0) { index ->
-                            genres?.get(index)?.name?.let { GenreBlock(name = it) {navController.navigate(Screen.GenreWise.route + "/${genres[index].id}" + "/${genres[index].name}")} }
+
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp)
+            ) {
+                when(genresMovieState) {
+                    is MovieState.Success -> {
+                        val genres = (genresMovieState as MovieState.Success<GenreResponse?>).data?.genres
+                        Text(
+                            text = "Genres",
+                            fontFamily = netflixFamily,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(genres?.size ?: 0) { index ->
+                                genres?.get(index)?.name?.let { GenreBlock(name = it) {navController.navigate(Screen.GenreWise.route + "/${genres[index].id}" + "/${genres[index].name}")} }
+                            }
+                        }
+                    }
+                    is MovieState.Error -> {
+                        val errorMessage = (topRatedMovies as MovieState.Error).message
+                        Text(text = errorMessage, fontSize = 30.sp, color = Color.Red)
+                    }
+                    is MovieState.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = Color.White)
                         }
                     }
                 }
-                is MovieState.Error -> {
-                    val errorMessage = (topRatedMovies as MovieState.Error).message
-                    Text(text = errorMessage, fontSize = 30.sp, color = Color.Red)
-                }
-                is MovieState.Loading -> {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color.White)
+
+            }
+        }
+
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Spacer(modifier = Modifier.height(10.dp))
+                Text(
+                    text = "Recommended videos",
+                    fontFamily = netflixFamily,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(0.8f)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                when(val state = recommendedMovies) {
+                    is MovieState.Success -> {
+                        val movies = state.data?.results
+                        if(!movies.isNullOrEmpty()) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                items(movies) {movie ->
+                                    MovieItemSmallSimilar(movie = movie, navController = navController)
+                                }
+
+                            }
+                        }
+                    }
+                    is MovieState.Loading -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(5) {
+                                Column(
+                                    modifier = Modifier
+                                        .height(260.dp)
+                                        .width(140.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(210.dp)
+                                            .width(140.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                    ) {
+                                        AnimatedShimmerItem()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    is MovieState.Error -> {
+                        
                     }
                 }
+                Spacer(modifier = Modifier.height(200.dp))
             }
-
         }
+
+
+
 
     }
 }
