@@ -308,7 +308,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             title = movie.title,
                                             releaseDate = movie.releaseDate ?: "N/A",
                                             rating = movie.voteAverage ?: 0.0,
-                                            addedOn = date
+                                            addedOn = System.currentTimeMillis()
                                         )
                                         viewModel2.addToFavourites(entity)
                                         Toast.makeText(context, "Added to your Favourites", Toast.LENGTH_SHORT).show()

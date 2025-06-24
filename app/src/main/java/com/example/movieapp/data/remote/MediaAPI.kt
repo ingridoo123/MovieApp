@@ -59,7 +59,7 @@ interface MediaAPI {
         @Query("primary_release_date.lte") lteReleaseDate: String = "1981-01-01",
         @Query("api_key") apiKey: String = API_KEY,
         @Query("language") language: String = "en",
-        @Query("sort_by") sortBy: String = "vote_count.desc"
+        @Query("sort_by") sortBy: String = "popularity.desc",
     ): MovieResponse
 
     @GET("discover/movie")
@@ -67,7 +67,12 @@ interface MediaAPI {
         @Query("with_genres") genresId: Int,
         @Query("page") page: Int = 1,
         @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") language: String = "en"
+        @Query("language") language: String = "en",
+        @Query("include_adult") includeAdult: Boolean = false,
+        @Query("sort_by") sortBy: String = "popularity.desc",
+        @Query("vote_average.gte") voteAverageGte: Float = 2.0f,
+        @Query("popularity.gte") popularityGte: Float = 34.0f
+
     ): MovieResponse
 
     @GET("movie/{movie_id}/similar")
@@ -140,7 +145,11 @@ interface MediaAPI {
         @Query("with_genres") genresId: Int,
         @Query("page") page: Int = 1,
         @Query("api_key") apiKey: String = API_KEY,
-        @Query("language") language: String = "en"
+        @Query("language") language: String = "en",
+        @Query("include_adult") includeAdult: Boolean = false,
+        @Query("vote_average.gte") voteAverageGte: Float = 2.0f,
+        @Query("popularity.gte") popularityGte: Float = 34.0f,
+        @Query("sort_by") sortBy: String ="popularity.desc",
     ): MovieResponse
 
 

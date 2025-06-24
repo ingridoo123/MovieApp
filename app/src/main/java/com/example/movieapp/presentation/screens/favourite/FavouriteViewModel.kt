@@ -41,7 +41,8 @@ class FavouriteViewModel @Inject constructor(private val myMoviesRepository: MyM
 
     fun addToFavourites(movie: MediaEntity) {
         viewModelScope.launch {
-            myMoviesRepository.insertMovie(movie)
+            val movieWithTimeStamp = movie.copy(addedOn = System.currentTimeMillis())
+            myMoviesRepository.insertMovie(movieWithTimeStamp)
         }.invokeOnCompletion {
             isFavourite(movie.mediaId)
         }

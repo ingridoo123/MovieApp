@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.screens.all_screen
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -278,6 +279,7 @@ fun AllGenresScreen(navController: NavController, genId:String, genName:String, 
                 ) {
                     items(itemsToDisplay.itemCount) { index ->
                         itemsToDisplay[index]?.let {
+                            Log.d("AllScreen", "Movie: ${it.title}, Popularity: ${it.popularity}")
                             Box(modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(horizontal = 6.dp)

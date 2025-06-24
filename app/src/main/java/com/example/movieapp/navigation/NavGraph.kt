@@ -198,60 +198,76 @@ fun SetupNavGraph(navController: NavHostController) {
                     navArgument("genName") { type = NavType.StringType }
                 ),
                 enterTransition = {
-                    slideInVertically(
-                        initialOffsetY = { fullHeight -> fullHeight },
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
+                    if(initialState.destination.route?.startsWith(Screen.Details.route) == true) {
+                        null
+                    } else {
+                        slideInVertically(
+                            initialOffsetY = { fullHeight -> fullHeight },
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
                         )
-                    ) + fadeIn(
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
-                        )
-                    )
+                    }
                 },
                 exitTransition = {
-                    slideOutVertically(
-                        targetOffsetY = { fullHeight -> fullHeight },
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
+                    if(targetState.destination.route?.startsWith(Screen.Details.route) == true) {
+                        null
+                    } else {
+                        slideOutVertically(
+                            targetOffsetY = { fullHeight -> fullHeight },
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
                         )
-                    ) + fadeOut(
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
-                        )
-                    )
+                    }
                 },
                 popEnterTransition = {
-                    slideInVertically(
-                        initialOffsetY = { fullHeight -> fullHeight },
-                        animationSpec = tween(
-                            durationMillis = 990,
-                            easing = FastOutSlowInEasing
+                    if(initialState.destination.route?.startsWith(Screen.Details.route) == true) {
+                        null
+                    } else {
+                        slideInVertically(
+                            initialOffsetY = { fullHeight -> fullHeight },
+                            animationSpec = tween(
+                                durationMillis = 990,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
                         )
-                    ) + fadeIn(
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
-                        )
-                    )
+                    }
                 },
                 popExitTransition = {
-                    slideOutVertically(
-                        targetOffsetY = { fullHeight -> fullHeight },
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
+                    if(targetState.destination.route?.startsWith(Screen.Details.route) == true) {
+                        null
+                    } else {
+                        slideOutVertically(
+                            targetOffsetY = { fullHeight -> fullHeight },
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 900,
+                                easing = FastOutSlowInEasing
+                            )
                         )
-                    ) + fadeOut(
-                        animationSpec = tween(
-                            durationMillis = 900,
-                            easing = FastOutSlowInEasing
-                        )
-                    )
+                    }
                 }
 
             ) {

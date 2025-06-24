@@ -102,7 +102,7 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
     val sortedMovies = remember(myMoviesDataOriginal, selectedSort) {
         myMoviesDataOriginal?.let { movies ->
             when (selectedSort) {
-                "Date added to the list" -> movies.sortedBy { it.addedOn }
+                "Date added to the list" -> movies
                 "Title (A-Z)" -> movies.sortedBy { it.title?.lowercase() ?: "" }
                 "Release date" -> movies.sortedByDescending { it.releaseDate ?: "" }
                 else -> movies
