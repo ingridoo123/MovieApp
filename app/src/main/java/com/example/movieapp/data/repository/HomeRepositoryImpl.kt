@@ -1,5 +1,6 @@
 package com.example.movieapp.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.example.movieapp.data.paging.MovieGenrePagingSource
@@ -11,6 +12,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.domain.model.Series
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -36,6 +38,40 @@ class HomeRepositoryImpl @Inject constructor(private val apiService: MediaAPI) {
         val randomPage = Random.nextInt(1,4)
         val response = apiService.getTopRatedMovies(randomPage)
         emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getTopRatedSeries(): Flow<SeriesResponse> = flow {
+        coroutineScope {
+            val page1 = async { apiService.getTopRatedSeries(1) }
+            val page2 = async { apiService.getTopRatedSeries(2) }
+
+            val responsePage1 = page1.await()
+            val responsePage2 = page2.await()
+
+            val combinedResults = responsePage1.results + responsePage2.results
+            val shuffledResult = combinedResults.shuffled()
+            val finalResult: MutableList<Series> = mutableListOf()
+
+            val animationId = 16
+            var animationMoviesRemoved = 0
+            var index = 0
+
+            while (index < shuffledResult.size) {
+                val series = shuffledResult[index]
+                if(series.genreIds?.contains(animationId) == true && animationMoviesRemoved < 5 && series.name != "INVINCIBLE" && series.name != "Solo Leveling") {
+                    animationMoviesRemoved++
+                } else {
+                    finalResult.add(series)
+                }
+                index++
+            }
+            finalResult.forEach {series ->
+                Log.d("Top Rated Series", "${series.name}, VA: ${series.voteAverage}, VC: ${series.voteCount}, POP: ${series.popularity} ")
+            }
+
+            val combinedResponse = responsePage1.copy(results = finalResult)
+            emit(combinedResponse)
+        }
     }.flowOn(Dispatchers.IO)
 
     fun getAllMoviesPagination(tags: String): Pager<Int, Movie> {

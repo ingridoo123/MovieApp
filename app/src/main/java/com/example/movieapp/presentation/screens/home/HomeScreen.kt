@@ -62,6 +62,8 @@ import com.example.movieapp.presentation.components.MovieItemSmallSimilar
 import com.example.movieapp.presentation.components.NoInternetScreen
 import com.example.movieapp.presentation.components.SeriesItemSmallSimilar
 import com.example.movieapp.presentation.components.ShimmerDarkGray
+import com.example.movieapp.presentation.components.TopRatedSeriesItem
+import com.example.movieapp.presentation.components.TopRatedSeriesItemShimmer
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.top_bar_component
@@ -81,6 +83,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
     val allDetailsLoaded by viewModel.allDetailsLoaded.collectAsState()
     val recommendedMovies by viewModel.recommendedMovies.collectAsState()
     val recommendedSeries by viewModel.recommendedSeries.collectAsState()
+    val topRatedSeries by viewModel.topRatedSeries.collectAsState()
 
     var preparedMovies by remember { mutableStateOf(viewModel.cachedFilteredMovies.value) }
 
@@ -225,7 +228,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(0.8f)
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 when(val state = recommendedMovies) {
                     is MovieState.Success -> {
                         val movies = state.data?.results
@@ -280,7 +283,7 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(alpha = 0.8f)
                 )
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 when (val state = recommendedSeries) {
                     is MovieState.Success -> {
                         val series = state.data?.results
@@ -321,6 +324,54 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         }
                     }
 
+                    is MovieState.Error -> {
+                        Text(
+                            text = state.message,
+                            color = Color.Red,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Top Rated Series",
+                    fontFamily = netflixFamily,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(0.8f)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                when (val state = topRatedSeries) {
+                    is MovieState.Success -> {
+                        val series = state.data?.results
+                        if (!series.isNullOrEmpty()) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                items(series) { seriesItem ->
+                                    TopRatedSeriesItem(
+                                        series = seriesItem,
+                                        navController = navController
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    is MovieState.Loading -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(4) {
+                                TopRatedSeriesItemShimmer()
+                            }
+                        }
+                    }
                     is MovieState.Error -> {
                         Text(
                             text = state.message,

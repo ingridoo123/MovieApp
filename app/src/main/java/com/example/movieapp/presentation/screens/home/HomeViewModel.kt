@@ -60,6 +60,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     private val _recommendedSeries: MutableStateFlow<MovieState<SeriesResponse?>> = MutableStateFlow(MovieState.Loading)
     val recommendedSeries: StateFlow<MovieState<SeriesResponse?>> = _recommendedSeries
 
+    private val _topRatedSeries: MutableStateFlow<MovieState<SeriesResponse?>> = MutableStateFlow(MovieState.Loading)
+    val topRatedSeries: StateFlow<MovieState<SeriesResponse?>> = _topRatedSeries
+
     private val _detailsMovieResponse: MutableStateFlow<MovieState<MovieDetailsDTO?>> = MutableStateFlow(MovieState.Loading)
     val detailsMovieResponse: StateFlow<MovieState<MovieDetailsDTO?>> = _detailsMovieResponse
 
@@ -84,7 +87,7 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         fetchRecommendedMovies()
         fetchRecommendedSeries()
         fetchTopRatedMovies()
-
+        fetchTopRatedSeries()
     }
 
 
@@ -225,6 +228,17 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
                 _response7.emit(MovieState.Error(errorMessage))
             }
 
+        }
+    }
+
+    fun fetchTopRatedSeries() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getTopRatedSeries().first()
+                _topRatedSeries.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _topRatedSeries.emit(MovieState.Error("Error TR series"))
+            }
         }
     }
 

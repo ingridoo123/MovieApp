@@ -176,6 +176,15 @@ interface MediaAPI {
         @Query("vote_count.gte") voteCountGte: Int = 3000
     ): SeriesResponse
 
+    @GET("discover/tv")
+    suspend fun getTopRatedSeries(
+        @Query("page") page: Int = 1,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("sort_by") sortBy: String = "vote_average.desc",
+        @Query("vote_count.gte") voteCountGte: Int = 1200
+    ): SeriesResponse
+
 
 
 

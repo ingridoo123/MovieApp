@@ -58,6 +58,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
@@ -765,7 +766,9 @@ fun SeriesItemSmallSimilar(series: Series, navController: NavController) {
                     fontFamily = netflixFamily,
                     color = componentLighter,
                     fontSize = 11.sp,
-                    modifier = Modifier.padding(end = 2.dp)
+                    modifier = Modifier.padding(end = 2.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
