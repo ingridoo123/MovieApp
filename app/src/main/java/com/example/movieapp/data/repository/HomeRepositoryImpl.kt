@@ -9,6 +9,7 @@ import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.domain.model.Movie
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -74,11 +75,27 @@ class HomeRepositoryImpl @Inject constructor(private val apiService: MediaAPI) {
 
     fun getRecommendedMovies(): Flow<MovieResponse> = flow {
         coroutineScope {
-            val deferredPage1 = async { apiService.getRecommendedMovies(1) }
-            val deferredPage2 = async { apiService.getRecommendedMovies(2) }
+            val page1 = async { apiService.getRecommendedMovies(1) }
+            val page2 = async { apiService.getRecommendedMovies(2) }
 
-            val responsePage1 = deferredPage1.await()
-            val responsePage2 = deferredPage2.await()
+            val responsePage1 = page1.await()
+            val responsePage2 = page2.await()
+
+            val combinedResults = responsePage1.results + responsePage2.results
+            val sortedResults = combinedResults.distinctBy { it.id }.sortedByDescending { it.popularity }
+            val combinedResponse = responsePage1.copy(results = sortedResults)
+
+            emit(combinedResponse)
+        }
+    }.flowOn(Dispatchers.IO)
+
+    fun getRecommendedSeries(): Flow<SeriesResponse> = flow {
+        coroutineScope {
+            val page1 = async { apiService.getRecommendedSeries(1) }
+            val page2 = async { apiService.getRecommendedSeries(2) }
+
+            val responsePage1 = page1.await()
+            val responsePage2 = page2.await()
 
             val combinedResults = responsePage1.results + responsePage2.results
             val sortedResults = combinedResults.distinctBy { it.id }.sortedByDescending { it.popularity }

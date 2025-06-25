@@ -77,6 +77,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.domain.model.Series
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
 import com.example.movieapp.ui.theme.background
@@ -571,13 +572,13 @@ fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
 
     Column(
         modifier = Modifier
-            .width(140.dp)
-            .height(260.dp)
+            .width(126.dp)
+            .height(234.dp)
     ) {
         Box(
             modifier = Modifier
-                .height(210.dp)
-                .width(140.dp)
+                .height(189.dp)
+                .width(126.dp)
                 .background(color = component, shape = RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
@@ -658,6 +659,117 @@ fun MovieItemSmallSimilar(movie: Movie, navController: NavController) {
         }
     }
 
+}
+
+@Composable
+fun SeriesItemSmallSimilar(series: Series, navController: NavController) {
+
+    val title = series.name
+    val imageUrl = "${MediaAPI.BASE_BACKDROP_IMAGE_URL}${series.posterPath}"
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrl)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+    val imageState = imagePainter.state
+
+    val genreMap = mapOf(
+        10759 to "Action", 16 to "Animation", 35 to "Comedy", 80 to "Crime",
+        99 to "Documentary", 18 to "Drama", 10751 to "Family", 10762 to "Kids",
+        9648 to "Mystery", 10763 to "News", 10764 to "Reality", 10765 to "Sci-Fi & Fantasy",
+        10766 to "Soap", 10767 to "Talk", 10768 to "War & Politics", 37 to "Western"
+    )
+
+    val genre = series.genreIds?.firstOrNull()?.let { genreMap[it] } ?: "N/A"
+
+    Column(
+        modifier = Modifier
+            .width(126.dp)
+            .height(234.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .height(189.dp)
+                .width(126.dp)
+                .background(color = component, shape = RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageState is AsyncImagePainter.State.Success) {
+                val imageBitmap = imageState.result.drawable.toBitmap()
+                Image(
+                    bitmap = imageBitmap.asImageBitmap(),
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { /* Nawigacja do szczegółów serialu - wymaga osobnego ekranu */ }
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Icon(
+                    imageVector = Icons.Default.ImageNotSupported,
+                    contentDescription = "error",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .padding(10.dp),
+                    tint = componentLighter
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Loading) {
+                AnimatedShimmerItem()
+            }
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = title,
+                fontFamily = netflixFamily,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.padding(top = 5.dp, bottom = 2.dp),
+                color = Color.White.copy(alpha = 0.8f),
+                maxLines = 1,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = if(series.firstAirDate?.take(4)?.isNotEmpty() == true) series.firstAirDate.take(4) else "N/A",
+                    fontFamily = netflixFamily,
+                    color = componentLighter,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(end = 4.dp),
+                )
+                Icon(
+                    imageVector = Icons.Default.Circle,
+                    modifier = Modifier
+                        .size(10.dp)
+                        .padding(end = 4.dp),
+                    tint = componentLighter,
+                    contentDescription = "circle"
+                )
+                Text(
+                    text = genre,
+                    fontFamily = netflixFamily,
+                    color = componentLighter,
+                    fontSize = 11.sp,
+                    modifier = Modifier.padding(end = 2.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable

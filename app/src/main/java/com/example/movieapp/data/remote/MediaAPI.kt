@@ -8,8 +8,10 @@ import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
+import com.example.movieapp.domain.model.Series
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -162,6 +164,17 @@ interface MediaAPI {
         @Query("popularity.gte") popularityGte: Float = 34.0f,
         @Query("sort_by") sortBy: String ="popularity.desc",
     ): MovieResponse
+
+    @GET("discover/tv")
+    suspend fun getRecommendedSeries(
+        @Query("page") page: Int = 1,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US",
+        @Query("sort_by") sortBy: String = "popularity.desc",
+        @Query("popularity.gte") popularityGte: Float = 35.0f,
+        @Query("vote_average.gte") voteAverageGte: Float = 5.5f,
+        @Query("vote_count.gte") voteCountGte: Int = 3000
+    ): SeriesResponse
 
 
 

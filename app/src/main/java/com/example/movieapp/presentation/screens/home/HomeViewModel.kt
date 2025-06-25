@@ -12,6 +12,7 @@ import androidx.paging.cachedIn
 import com.example.movieapp.data.remote.respond.GenreResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.repository.HomeRepositoryImpl
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.util.MovieState
@@ -56,6 +57,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     private val _recommendedMovies: MutableStateFlow<MovieState<MovieResponse?>> = MutableStateFlow(MovieState.Loading)
     val recommendedMovies: StateFlow<MovieState<MovieResponse?>> = _recommendedMovies
 
+    private val _recommendedSeries: MutableStateFlow<MovieState<SeriesResponse?>> = MutableStateFlow(MovieState.Loading)
+    val recommendedSeries: StateFlow<MovieState<SeriesResponse?>> = _recommendedSeries
+
     private val _detailsMovieResponse: MutableStateFlow<MovieState<MovieDetailsDTO?>> = MutableStateFlow(MovieState.Loading)
     val detailsMovieResponse: StateFlow<MovieState<MovieDetailsDTO?>> = _detailsMovieResponse
 
@@ -78,10 +82,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
     init {
         fetchDiscoverMovies()
         fetchRecommendedMovies()
-        fetchNowPlayingMovies()
-        fetchUpcomingMovies()
-        fetchGenreResponse()
+        fetchRecommendedSeries()
         fetchTopRatedMovies()
+
     }
 
 
@@ -138,6 +141,8 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
         _allDetailsLoaded.value = false
     }
 
+
+
     fun fetchAllMovieDetails(movieIds: List<String>) {
         viewModelScope.launch {
             try {
@@ -192,8 +197,19 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
                 val response = repository.getRecommendedMovies().first()
                 _recommendedMovies.emit(MovieState.Success(response))
             } catch (e: Exception) {
-                val errorMessage = "Error recommended"
+                val errorMessage = "Error recommended movies"
                 _recommendedMovies.emit(MovieState.Error(errorMessage))
+            }
+        }
+    }
+
+    fun fetchRecommendedSeries() {
+        viewModelScope.launch {
+            try {
+                val response = repository.getRecommendedSeries().first()
+                _recommendedSeries.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _recommendedSeries.emit(MovieState.Error("Error recommended series"))
             }
         }
     }

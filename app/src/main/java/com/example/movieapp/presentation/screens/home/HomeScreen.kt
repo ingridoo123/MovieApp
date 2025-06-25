@@ -60,8 +60,11 @@ import com.example.movieapp.presentation.components.GenreBlock
 import com.example.movieapp.presentation.components.MovieItemLoadingPlaceholder
 import com.example.movieapp.presentation.components.MovieItemSmallSimilar
 import com.example.movieapp.presentation.components.NoInternetScreen
+import com.example.movieapp.presentation.components.SeriesItemSmallSimilar
 import com.example.movieapp.presentation.components.ShimmerDarkGray
 import com.example.movieapp.ui.theme.background
+import com.example.movieapp.ui.theme.component
+import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants.netflixFamily
 import com.example.movieapp.util.MovieState
 import dev.chrisbanes.haze.HazeState
@@ -76,14 +79,16 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
     val topRatedMovies by viewModel.topRatedMovieResponse.collectAsState()
     val movieDetailsMap by viewModel.movieDetailsMap.collectAsState()
     val allDetailsLoaded by viewModel.allDetailsLoaded.collectAsState()
-    val genresMovieState by viewModel.genresMovieResponse.collectAsState()
     val recommendedMovies by viewModel.recommendedMovies.collectAsState()
+    val recommendedSeries by viewModel.recommendedSeries.collectAsState()
 
     var preparedMovies by remember { mutableStateOf(viewModel.cachedFilteredMovies.value) }
 
     var isLoadingDetails by remember {
         mutableStateOf(true)
     }
+
+    var selectedMediaType by remember { mutableStateOf<String?>(null)}
 
 
     LaunchedEffect(refreshTrigger) {
@@ -94,7 +99,8 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = background)
+            .background(color = background),
+        contentPadding = PaddingValues(bottom = 100.dp)
 
     ) {
         item {
@@ -183,46 +189,27 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
         }
 
         item {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp)
+                    .fillMaxWidth()
+                    .padding(top = 16.dp, bottom = 10.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
-                when(genresMovieState) {
-                    is MovieState.Success -> {
-                        val genres = (genresMovieState as MovieState.Success<GenreResponse?>).data?.genres
-                        Text(
-                            text = "Genres",
-                            fontFamily = netflixFamily,
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color.White.copy(alpha = 0.8f)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LazyRow(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(genres?.size ?: 0) { index ->
-                                genres?.get(index)?.name?.let { GenreBlock(name = it) {navController.navigate(Screen.GenreWise.route + "/${genres[index].id}" + "/${genres[index].name}")} }
-                            }
-                        }
+                MediaTypeChip(
+                    text = "Movies",
+                    isSelected = selectedMediaType == "Movies",
+                    onClick = {
+                        selectedMediaType = if (selectedMediaType == "Movies") null else "Movies"
                     }
-                    is MovieState.Error -> {
-                        val errorMessage = (topRatedMovies as MovieState.Error).message
-                        Text(text = errorMessage, fontSize = 30.sp, color = Color.Red)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                MediaTypeChip(
+                    text = "Series",
+                    isSelected = selectedMediaType == "Series",
+                    onClick = {
+                        selectedMediaType = if (selectedMediaType == "Series") null else "Series"
                     }
-                    is MovieState.Loading -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = Color.White)
-                        }
-                    }
-                }
-
+                )
             }
         }
 
@@ -230,15 +217,15 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp)
             ) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(
-                    text = "Recommended videos",
+                    text = "Recommended Movies",
                     fontFamily = netflixFamily,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Medium,
                     color = Color.White.copy(0.8f)
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 when(val state = recommendedMovies) {
                     is MovieState.Success -> {
                         val movies = state.data?.results
@@ -279,15 +266,94 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         
                     }
                 }
-                Spacer(modifier = Modifier.height(200.dp))
             }
         }
+        item {
+            Column(
+                modifier = Modifier.padding(horizontal = 12.dp)
+            ) {
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Recommended Series",
+                    fontFamily = netflixFamily,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White.copy(alpha = 0.8f)
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                when (val state = recommendedSeries) {
+                    is MovieState.Success -> {
+                        val series = state.data?.results
+                        if (!series.isNullOrEmpty()) {
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                items(series) { seriesItem ->
+                                    SeriesItemSmallSimilar(
+                                        series = seriesItem,
+                                        navController = navController
+                                    )
+                                }
+                            }
+                        }
+                    }
 
+                    is MovieState.Loading -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            items(5) {
+                                Column(
+                                    modifier = Modifier
+                                        .width(140.dp)
+                                        .height(260.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .height(210.dp)
+                                            .width(140.dp)
+                                            .clip(RoundedCornerShape(12.dp))
+                                    ) {
+                                        AnimatedShimmerItem()
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-
-
+                    is MovieState.Error -> {
+                        Text(
+                            text = state.message,
+                            color = Color.Red,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
+
+@Composable
+fun MediaTypeChip(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(15.dp))
+            .border(width = 1.dp, color = component, shape = RoundedCornerShape(15.dp))
+            .background(if (isSelected) component else background)
+            .clickable { onClick() }
+            .padding(vertical = 6.dp, horizontal = 20.dp)
+    ) {
+        Text(
+            text = text,
+            fontFamily = netflixFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 13.sp,
+            color = Color.White.copy(alpha = 0.8f)
+        )
+    }
+}
+
 
 @Composable
 fun HomeSlider(
@@ -306,7 +372,7 @@ fun HomeSlider(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(590.dp)
+            .height(560.dp)
     ) {
         Box(
             modifier = Modifier
@@ -326,7 +392,7 @@ fun HomeSlider(
                 onIndexChanged = { currentIndex = it},
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
-                    .height(575.dp)
+                    .height(546.dp)
                     .clip(RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp))
                     .background(
                         brush = Brush.verticalGradient(
@@ -344,7 +410,7 @@ fun HomeSlider(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 19.dp),
+                .padding(bottom = 17.dp),
             verticalArrangement = Arrangement.Bottom
         ) {
             Row(
