@@ -6,6 +6,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
+import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
 import kotlinx.coroutines.Dispatchers
@@ -51,5 +52,17 @@ class MovieDetailsRepositoryImpl @Inject constructor(private val apiService: Med
         val response = apiService.getPersonMovieCredits(personId.toInt())
         emit(response)
     }.flowOn(Dispatchers.IO)
+
+    fun getSeriesDetails(seriesId: String): Flow<SeriesDetailsDTO> = flow {
+        val response = apiService.getSeriesDetails(seriesId.toInt())
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getSeriesTrailers(seriesId: String): Flow<VideoResponse> = flow {
+        val response = apiService.getSeriesTrailer(seriesId.toInt())
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+
 
 }

@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
+import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
@@ -184,6 +185,19 @@ interface MediaAPI {
         @Query("sort_by") sortBy: String = "vote_average.desc",
         @Query("vote_count.gte") voteCountGte: Int = 1200
     ): SeriesResponse
+
+    @GET("tv/{series_id}")
+    suspend fun getSeriesDetails(
+        @Path("series_id") seriesId: Int,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US"
+    ): SeriesDetailsDTO
+
+    @GET("tv/{series_id}/videos")
+    suspend fun getSeriesTrailer(
+        @Path("series_id") seriesId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): VideoResponse
 
 
 

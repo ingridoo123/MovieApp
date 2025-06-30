@@ -44,29 +44,34 @@ class HomeRepositoryImpl @Inject constructor(private val apiService: MediaAPI) {
         coroutineScope {
             val page1 = async { apiService.getTopRatedSeries(1) }
             val page2 = async { apiService.getTopRatedSeries(2) }
+            val page3 = async { apiService.getTopRatedSeries(3) }
+            val page4 = async { apiService.getTopRatedSeries(4) }
 
             val responsePage1 = page1.await()
             val responsePage2 = page2.await()
+            val responsePage3 = page3.await()
+            val responsePage4 = page4.await()
 
-            val combinedResults = responsePage1.results + responsePage2.results
-            val shuffledResult = combinedResults.shuffled()
+            val combinedResults = responsePage1.results + responsePage2.results + responsePage3.results + responsePage4.results
+            val shuffledResult = combinedResults.sortedByDescending { it.voteAverage }
             val finalResult: MutableList<Series> = mutableListOf()
 
+            val respectedAnimations = listOf("INVINCIBLE", "Solo Leveling", "Arcane", "Attack on Titan", "Batman: The Animated Series", "Death Note", "Hazbin Hotel", "JoJo's Bizarre Adventure", "Chainsaw Man", "Rick and Morty", "Regular Show", "Hunter x Hunter", "JUJUTSU KAISEN")
             val animationId = 16
-            var animationMoviesRemoved = 0
-            var index = 0
 
-            while (index < shuffledResult.size) {
-                val series = shuffledResult[index]
-                if(series.genreIds?.contains(animationId) == true && animationMoviesRemoved < 5 && series.name != "INVINCIBLE" && series.name != "Solo Leveling") {
-                    animationMoviesRemoved++
+            shuffledResult.forEach { series ->
+                val isAnimated = series.genreIds?.contains(animationId) == true
+                if(isAnimated) {
+                    if(series.name in respectedAnimations) {
+                        finalResult.add(series)
+                    }
                 } else {
                     finalResult.add(series)
                 }
-                index++
             }
+
             finalResult.forEach {series ->
-                Log.d("Top Rated Series", "${series.name}, VA: ${series.voteAverage}, VC: ${series.voteCount}, POP: ${series.popularity} ")
+                Log.d("Top Rated Series", "${series.name}, VA: ${series.voteAverage}, VC: ${series.voteCount}, POP: ${series.popularity}, genre: ${series.genreIds} ")
             }
 
             val combinedResponse = responsePage1.copy(results = finalResult)

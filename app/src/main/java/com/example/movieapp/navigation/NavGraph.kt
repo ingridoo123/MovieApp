@@ -38,6 +38,7 @@ import com.example.movieapp.presentation.screens.home.HomeViewModel
 
 import com.example.movieapp.presentation.screens.home.SimpleHomeScreen
 import com.example.movieapp.presentation.screens.search.SearchScreen
+import com.example.movieapp.presentation.screens.series_details.SeriesDetailsScreen
 import com.example.movieapp.presentation.screens.splash.SplashScreen
 import com.example.movieapp.ui.theme.background
 
@@ -155,6 +156,103 @@ fun SetupNavGraph(navController: NavHostController) {
                     movieId = it.arguments?.getString("movieId") ?: "1"
                 )
             }
+        composable(
+            route = Screen.Details.route + "/{seriesId}",
+            arguments = listOf(navArgument("seriesId") { type = NavType.StringType }),
+            enterTransition = {
+                when (initialState.destination.route) {
+                    Screen.Favourite.route -> slideInVertically(
+                        initialOffsetY = { fullHeight -> fullHeight },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+
+                    else -> slideInHorizontally(
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeIn(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                }
+            },
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeOut(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            },
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ) + fadeIn(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                )
+            },
+            popExitTransition = {
+                when (targetState.destination.route) {
+                    Screen.Favourite.route -> slideOutVertically(
+                        targetOffsetY = { fullHeight -> fullHeight },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+
+                    else -> slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> fullWidth },
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    ) + fadeOut(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
+                        )
+                    )
+                }
+            }
+        ) {
+            SeriesDetailsScreen(
+                navController = navController,
+                seriesId = it.arguments?.getString("seriesId") ?: "1"
+            )
+        }
+
+
         
             composable(
                 route = Screen.CastAndCrew.route + "/{movieId}",
