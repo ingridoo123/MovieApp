@@ -37,6 +37,7 @@ import coil.request.ImageRequest
 import coil.size.Size
 import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.domain.model.Series
+import com.example.movieapp.navigation.Screen
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
 import com.example.movieapp.util.Constants.netflixFamily
@@ -66,7 +67,7 @@ fun TopRatedSeriesItem(series: Series, navController: NavController) {
         modifier = Modifier
             .width(240.dp)
             .height(170.dp)
-            .clickable { }
+            .clickable { navController.navigate(Screen.SeriesDetails.route + "/${series.id}")}
     ) {
         Box(
             modifier = Modifier

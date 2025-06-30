@@ -56,6 +56,7 @@ import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
 import com.example.movieapp.presentation.screens.details.PlayTrailerBox
+import com.example.movieapp.presentation.screens.details.YoutubePlayer
 import com.example.movieapp.presentation.screens.details.formatRuntime
 import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
 import com.example.movieapp.ui.theme.background
@@ -81,7 +82,7 @@ fun SeriesDetailsScreen(
     val seriesTrailerState by viewModel.seriesTrailerResponse.collectAsState()
     val detailsSeriesState by viewModel.detailsSeriesResponse.collectAsState()
 
-    var playTrailer by remember { mutableStateOf<String?>(null) }
+    var playTrailer by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchSeriesDetails(seriesId)
@@ -245,26 +246,19 @@ fun SeriesDetailsScreen(
                                     val trailerList =
                                         (seriesTrailerState as MovieState.Success<List<Trailer>?>).data
                                             ?: emptyList()
-                                    val trailersFiltered =
-                                        trailerList.filter { it.site == "Youtube" && it.type == "Trailer" }
-                                            .take(3)
-                                    LazyRow(
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                                    ) {
-                                        items(trailersFiltered) { trailer ->
-                                            if (playTrailer == trailer.key) {
-                                                YouTubePlayerSeries(
-                                                    youtubeVideoId = trailer.key,
-                                                    lifecycleOwner = LocalLifecycleOwner.current,
-                                                    modifier = Modifier.width(320.dp)
-                                                )
-                                            } else {
-                                                PlayTrailerBoxSeries(
-                                                    onClick = { playTrailer = trailer.key },
-                                                    imageUrl = seriesInfo.backdropPath,
-                                                    modifier = Modifier.width(320.dp)
-                                                )
-                                            }
+//                                    val trailersFiltered =
+//                                        trailerList.filter { it.site == "Youtube" && it.type == "Trailer" }
+//                                            .take(3)
+                                    val trailer =
+                                        trailerList.firstOrNull { it.site == "Youtube" && it.type == "Trailer" }
+                                    trailer?.let {
+                                        if(playTrailer) {
+                                            YoutubePlayer(youtubeVideoId = it.key, lifecycleOwner = LocalLifecycleOwner.current)
+                                        } else {
+                                            PlayTrailerBox(
+                                                onClick = {playTrailer = true},
+                                                imageUrl = seriesInfo.backdropPath
+                                            )
                                         }
                                     }
                                 }

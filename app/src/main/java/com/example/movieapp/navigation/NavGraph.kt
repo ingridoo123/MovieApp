@@ -157,7 +157,7 @@ fun SetupNavGraph(navController: NavHostController) {
                 )
             }
         composable(
-            route = Screen.Details.route + "/{seriesId}",
+            route = Screen.SeriesDetails.route + "/{seriesId}",
             arguments = listOf(navArgument("seriesId") { type = NavType.StringType }),
             enterTransition = {
                 when (initialState.destination.route) {

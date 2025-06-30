@@ -706,7 +706,7 @@ fun SeriesItemSmallSimilar(series: Series, navController: NavController) {
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(12.dp))
-                        .clickable { /* Nawigacja do szczegółów serialu - wymaga osobnego ekranu */ }
+                        .clickable { navController.navigate(Screen.SeriesDetails.route + "/${series.id}") }
                 )
             }
 
