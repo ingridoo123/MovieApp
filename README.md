@@ -1,42 +1,63 @@
-O projekcie 
-MovieApp to intuicyjna i łatwa w obsłudze aplikacja, która powstała z pasji do filmów. Niezależnie od tego, czy szukasz czegoś na wieczór, czy chcesz uporządkować swoją listę "do obejrzenia", nasza aplikacja Ci w tym pomoże.
+# MovieApp 🎬
 
-Funkcje 
-Odkrywaj: Przeglądaj tysiące filmów z różnych gatunków i lat.
+Witaj w **MovieApp**, aplikacji stworzonej dla prawdziwych miłośników kina! Dzięki niej możesz odkrywać nowe filmy, śledzić swoje ulubione produkcje i być na bieżąco ze światem kinematografii.
 
-Wyszukiwarka: Znajdź interesujący Cię film w kilka sekund.
+---
 
-Ulubione filmy: Twórz własną, spersonalizowaną listę filmów, które chcesz obejrzeć.
+## O projekcie 🍿
 
-Szczegóły: Uzyskaj dostęp do szczegółowych informacji o każdym filmie, w tym opisy, obsadę i zwiastuny.
+**MovieApp** to intuicyjna i łatwa w obsłudze aplikacja, która powstała z pasji do filmów.  
+Niezależnie od tego, czy szukasz czegoś na wieczór, czy chcesz uporządkować swoją listę *"do obejrzenia"*, nasza aplikacja Ci w tym pomoże.
 
+---
 
-Technologie 💻
+## Funkcje ✨
+
+- **Odkrywaj**: Przeglądaj tysiące filmów z różnych gatunków i lat.  
+- **Wyszukiwarka**: Znajdź interesujący Cię film w kilka sekund.  
+- **Twoja lista**: Twórz własną, spersonalizowaną listę filmów, które chcesz obejrzeć.  
+- **Szczegóły**: Uzyskaj dostęp do szczegółowych informacji o każdym filmie – opisy, obsada, zwiastuny.  
+- **Brak internetu?** Żaden problem! Nasza aplikacja działa również w trybie offline.
+
+---
+
+## Technologie 💻
+
 Aplikacja została zbudowana przy użyciu nowoczesnych technologii, aby zapewnić najlepsze wrażenia z użytkowania:
 
-Kotlin: Główny język programowania, który zapewnia zwięzłość i bezpieczeństwo kodu.
+- **Kotlin** – zwięzły i bezpieczny język programowania.
+- **Jetpack Compose** – nowoczesny framework do budowania UI w Androidzie.
+- **Retrofit** – biblioteka do komunikacji z API.
+- **Room** – warstwa abstrakcji nad SQLite do lokalnego przechowywania danych.
+- **Dagger Hilt** – do wstrzykiwania zależności w prosty sposób.
 
-Jetpack Compose: Nowoczesny zestaw narzędzi do tworzenia natywnego interfejsu użytkownika w systemie Android.
+---
 
-Retrofit: Biblioteka do obsługi zapytań sieciowych, która ułatwia komunikację z API.
+## Zrzuty ekranu 📸
 
-Room: Biblioteka zapewniająca abstrakcyjną warstwę nad SQLite do przechowywania danych lokalnie.
+<p float="left">
+  <img src="link_do_screena_1.png" width="250" />
+  <img src="link_do_screena_2.png" width="250" />
+  <img src="link_do_screena_3.png" width="250" />
+</p>
 
-Dagger Hilt: Biblioteka do wstrzykiwania zależności, która upraszcza zarządzanie zależnościami w aplikacji.
+---
 
-Zrzuty ekranu 📸
-
-Ekran główny
-<img src="link_do_screena_1.png" width="250">
-
-Ekran wyszukiwania
-<img src="link_do_screena_2.png" width="250">
-
-Ekran szczegółów
-<img src="link_do_screena_3.png" width="250">
-
-GIF z działaniem aplikacji 🎥
+## GIF z działaniem aplikacji 🎥
 
 <p align="center">
-<img src="link_do_twojego_gifa.gif" width="300">
+  <img src="link_do_twojego_gifa.gif" width="300" />
 </p>
+
+---
+
+## 🎞️ Demo wideo (opcjonalnie)
+
+Jeśli chcesz zobaczyć aplikację w akcji, kliknij poniżej:  
+[![Zobacz demo na YouTube](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
+
+---
+
+## 📬 Kontakt
+
+Masz pytania lub sugestie? Napisz do mnie!
