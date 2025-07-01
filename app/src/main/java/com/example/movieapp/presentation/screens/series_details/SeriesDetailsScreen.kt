@@ -54,6 +54,7 @@ import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
+import com.example.movieapp.presentation.components.SeriesItem
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
 import com.example.movieapp.presentation.screens.details.PlayTrailerBox
 import com.example.movieapp.presentation.screens.details.YoutubePlayer
@@ -100,6 +101,13 @@ fun SeriesDetailsScreen(
                 val seriesInfo = (detailsSeriesState as MovieState.Success<SeriesDetailsDTO?>).data
                 seriesInfo?.let {
                     Column(modifier = Modifier.fillMaxSize()) {
+
+                        SeriesItem(
+                            seriesInfo = it,
+                            navController = navController,
+                            viewModel = viewModel2,
+                            bookmarkImageUrl = it.backdropPath ?: ""
+                        )
                         Log.d("DetailsScreen", seriesInfo.originalLanguage)
                         Row(
                             modifier = Modifier
@@ -246,11 +254,9 @@ fun SeriesDetailsScreen(
                                     val trailerList =
                                         (seriesTrailerState as MovieState.Success<List<Trailer>?>).data
                                             ?: emptyList()
-//                                    val trailersFiltered =
-//                                        trailerList.filter { it.site == "Youtube" && it.type == "Trailer" }
-//                                            .take(3)
+
                                     val trailer =
-                                        trailerList.firstOrNull { it.site == "Youtube" && it.type == "Trailer" }
+                                        trailerList.firstOrNull { it.site == "YouTube" && it.type == "Trailer" }
                                     trailer?.let {
                                         if(playTrailer) {
                                             YoutubePlayer(youtubeVideoId = it.key, lifecycleOwner = LocalLifecycleOwner.current)
