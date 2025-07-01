@@ -1,4 +1,4 @@
-# MovieApp 
+# MovieApp (IN PROGRESS!!)
 
 ## O projekcie
 
