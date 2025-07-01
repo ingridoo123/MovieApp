@@ -19,10 +19,10 @@ Niezależnie od tego, czy szukasz czegoś na wieczór, czy chcesz uporządkować
 
 Aplikacja została zbudowana przy użyciu nowoczesnych technologii, aby zapewnić najlepsze wrażenia z użytkowania:
 
-- **Kotlin** – zwięzły i bezpieczny język programowania.
-- **Jetpack Compose** – nowoczesny framework do budowania UI w Androidzie.
-- **Retrofit** – biblioteka do komunikacji z API.
-- **Room** – warstwa abstrakcji nad SQLite do lokalnego przechowywania danych.
+- **Kotlin** – język programowania.
+- **Jetpack Compose** – nowoczesny framework do UI.
+- **Retrofit** – komunikacja z API.
+- **Room** – SQLite do lokalnego przechowywania danych.
 - **Dagger Hilt** – do wstrzykiwania zależności w prosty sposób.
 
 ---
