@@ -191,36 +191,36 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
             }
         }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp, bottom = 10.dp),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                MediaTypeChip(
-                    text = "Movies",
-                    isSelected = selectedMediaType == "Movies",
-                    onClick = {
-                        selectedMediaType = if (selectedMediaType == "Movies") null else "Movies"
-                    }
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                MediaTypeChip(
-                    text = "Series",
-                    isSelected = selectedMediaType == "Series",
-                    onClick = {
-                        selectedMediaType = if (selectedMediaType == "Series") null else "Series"
-                    }
-                )
-            }
-        }
+//        item {
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .padding(top = 16.dp, bottom = 10.dp),
+//                horizontalArrangement = Arrangement.Center
+//            ) {
+//                MediaTypeChip(
+//                    text = "Movies",
+//                    isSelected = selectedMediaType == "Movies",
+//                    onClick = {
+//                        selectedMediaType = if (selectedMediaType == "Movies") null else "Movies"
+//                    }
+//                )
+//                Spacer(modifier = Modifier.width(10.dp))
+//                MediaTypeChip(
+//                    text = "Series",
+//                    isSelected = selectedMediaType == "Series",
+//                    onClick = {
+//                        selectedMediaType = if (selectedMediaType == "Series") null else "Series"
+//                    }
+//                )
+//            }
+//        }
 
         item {
             Column(
                 modifier = Modifier.padding(horizontal = 12.dp)
             ) {
-                Spacer(modifier = Modifier.height(5.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Recommended Movies",
                     fontFamily = netflixFamily,

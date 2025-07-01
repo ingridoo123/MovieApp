@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -53,8 +54,11 @@ import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.domain.model.Series
+import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
+import com.example.movieapp.presentation.screens.series_details.PlayTrailerBoxSeries
+import com.example.movieapp.presentation.screens.series_details.YouTubePlayerSeries
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.component
 import com.example.movieapp.ui.theme.componentLighter
@@ -185,6 +189,8 @@ fun TopRatedSeriesItemShimmer() {
         }
     }
 }
+
+
 
 @Composable
 fun SeriesItem(seriesInfo: SeriesDetailsDTO, navController: NavController, viewModel: FavouriteViewModel, bookmarkImageUrl: String) {

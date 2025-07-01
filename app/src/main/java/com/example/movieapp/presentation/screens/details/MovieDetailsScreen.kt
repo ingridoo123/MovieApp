@@ -133,7 +133,7 @@ fun MovieDetailsScreen(
                    ) {
                        val imageUrl = (movieImagesState as? MovieState.Success)?.data
                            ?.firstOrNull { it.height == 1080 && it.width ==1920 && it.language == "en" }
-                           ?.filePath
+                           ?.filePath ?: it.backdropPath
 
                        MovieDataItem(movieInfo = it, navController = navController, viewModel = viewModel2, imageUrl ?: "")
                        Log.d("DetailsScreen", moviesInfo.originalLanguage)
@@ -510,6 +510,16 @@ fun PlayTrailerBox(onClick: () -> Unit, imageUrl: String?) {
                 )
         ) {
             if (imageUrl != null) {
+                Image(
+                    painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + imageUrl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .fillMaxSize()
+                )
+            }
+            if(imageUrl == null) {
                 Image(
                     painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + imageUrl),
                     contentDescription = null,

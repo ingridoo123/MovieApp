@@ -42,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -72,6 +73,20 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+
+private fun formatTrailerDate(dateString: String): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        val outputFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+        val date = inputFormat.parse(dateString)
+        date?.let { outputFormat.format(it) } ?: ""
+    } catch (e: Exception) {
+        ""
+    }
+}
 
 @Composable
 fun SeriesDetailsScreen(
@@ -83,7 +98,7 @@ fun SeriesDetailsScreen(
     val seriesTrailerState by viewModel.seriesTrailerResponse.collectAsState()
     val detailsSeriesState by viewModel.detailsSeriesResponse.collectAsState()
 
-    var playTrailer by remember { mutableStateOf(false) }
+    var playedTrailerKey by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.fetchSeriesDetails(seriesId)
@@ -240,7 +255,7 @@ fun SeriesDetailsScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Trailer",
+                                    text = "Trailers",
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = Color.White.copy(0.8f),
@@ -251,20 +266,40 @@ fun SeriesDetailsScreen(
 
                             when (seriesTrailerState) {
                                 is MovieState.Success -> {
-                                    val trailerList =
-                                        (seriesTrailerState as MovieState.Success<List<Trailer>?>).data
-                                            ?: emptyList()
+                                    val trailerList = (seriesTrailerState as MovieState.Success<List<Trailer>?>).data
+                                        ?.filter { it.site == "YouTube" && (it.type == "Trailer" || it.type == "Teaser") }?.take(3)
+                                        ?: emptyList()
 
-                                    val trailer =
-                                        trailerList.firstOrNull { it.site == "YouTube" && it.type == "Trailer" }
-                                    trailer?.let {
-                                        if(playTrailer) {
-                                            YoutubePlayer(youtubeVideoId = it.key, lifecycleOwner = LocalLifecycleOwner.current)
+                                    Log.d("SeriesD", "${trailerList.size}")
+
+                                    if (trailerList.isNotEmpty()) {
+                                        if(trailerList.size == 1) {
+                                            val trailer = trailerList.first()
+                                            if (playedTrailerKey == trailer.key) {
+                                                YoutubePlayer(
+                                                    youtubeVideoId = trailer.key,
+                                                    lifecycleOwner = LocalLifecycleOwner.current,
+                                                )
+                                            } else {
+                                                PlayTrailerBox(
+                                                    onClick = { playedTrailerKey = trailer.key },
+                                                    imageUrl = seriesInfo.backdropPath,
+                                                )
+                                            }
                                         } else {
-                                            PlayTrailerBox(
-                                                onClick = {playTrailer = true},
-                                                imageUrl = seriesInfo.backdropPath
-                                            )
+                                            LazyRow(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                                            ) {
+                                                items(trailerList) { trailer ->
+                                                    TrailerItem(
+                                                        trailer = trailer,
+                                                        backdropUrl = seriesInfo.backdropPath,
+                                                        isPlaying = playedTrailerKey == trailer.key,
+                                                        onPlayClick = {playedTrailerKey = trailer.key}
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -290,6 +325,7 @@ fun SeriesDetailsScreen(
                                     )
                                 }
                             }
+                            Spacer(modifier = Modifier.height(200.dp) )
                         }
 
                     }
@@ -434,6 +470,8 @@ fun YouTubePlayerSeries(
     modifier: Modifier = Modifier
 ) {
     AndroidView(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp)),
         factory = { context ->
             YouTubePlayerView(context = context).apply {
                 lifecycleOwner.lifecycle.addObserver(this)
@@ -446,6 +484,58 @@ fun YouTubePlayerSeries(
         }
     )
 }
+@Composable
+fun TrailerItem(
+    trailer: Trailer,
+    backdropUrl: String?,
+    isPlaying: Boolean,
+    onPlayClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = Modifier.width(300.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(169.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(top_bar_component)
+        ) {
+            if (isPlaying) {
+                YouTubePlayerSeries(
+                    youtubeVideoId = trailer.key,
+                    lifecycleOwner = LocalLifecycleOwner.current,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else {
+                PlayTrailerBoxSeries(
+                    onClick = onPlayClick,
+                    imageUrl = backdropUrl,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = trailer.name,
+            fontFamily = netflixFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            color = Color.White.copy(alpha = 0.9f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            text = formatTrailerDate(trailer.publishedAt),
+            fontFamily = netflixFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 12.sp,
+            color = componentLighter
+        )
+    }
+}
 
 @Composable
 fun PlayTrailerBoxSeries(onClick: () -> Unit, imageUrl: String?, modifier: Modifier = Modifier) {
@@ -455,7 +545,6 @@ fun PlayTrailerBoxSeries(onClick: () -> Unit, imageUrl: String?, modifier: Modif
 
     Box(
         modifier = modifier
-            .height(220.dp)
             .clip(RoundedCornerShape(10.dp))
             .background(top_bar_component)
             .clickable { onClick() },
@@ -499,7 +588,6 @@ fun PlayTrailerBoxSeries(onClick: () -> Unit, imageUrl: String?, modifier: Modif
                     .hazeChild(hazeState, shape = RoundedCornerShape(10.dp))
             )
         }
-
     }
 }
 
