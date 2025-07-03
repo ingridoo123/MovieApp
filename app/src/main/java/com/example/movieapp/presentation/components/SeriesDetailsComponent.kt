@@ -149,13 +149,13 @@ fun EpisodeItem(episode: EpisodeDto) {
 
     Column(
         modifier = Modifier
-            .width(160.dp)
+            .width(192.dp)
             .clickable { }
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(90.dp)
+                .height(108.dp)
                 .clip(RoundedCornerShape(10.dp))
                 .background(top_bar_component),
             contentAlignment = Alignment.Center
@@ -177,7 +177,7 @@ fun EpisodeItem(episode: EpisodeDto) {
                             imageVector = Icons.Default.ImageNotSupported,
                             contentDescription = "No Image",
                             tint = componentLighter,
-                            modifier = Modifier.size(40.dp)
+                            modifier = Modifier.size(48.dp)
                         )
                     }
                 }
@@ -188,7 +188,7 @@ fun EpisodeItem(episode: EpisodeDto) {
                 }
             }
         }
-        Spacer(modifier = Modifier.height(2.dp))
+        Spacer(modifier = Modifier.height(3.dp))
 
         Column {
             Text(
@@ -199,7 +199,7 @@ fun EpisodeItem(episode: EpisodeDto) {
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
             Text(
                 text = formatEpisodeAirDate(episode.airDate),
                 fontFamily = Constants.netflixFamily,
