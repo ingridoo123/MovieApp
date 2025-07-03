@@ -42,7 +42,7 @@ Aplikacja została zbudowana przy użyciu nowoczesnych technologii, aby zapewni�
 
 ---
 
-## GIF z działaniem aplikacji 🎥
+## GIF z działaniem Search Screen 🎥
 
 <p align="center">
   <img src="catalog.gif" width="300" />
