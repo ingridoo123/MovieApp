@@ -55,6 +55,7 @@ import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
+import com.example.movieapp.presentation.components.SeasonsAndEpisodesComponent
 import com.example.movieapp.presentation.components.SeriesItem
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
 import com.example.movieapp.presentation.screens.details.PlayTrailerBox
@@ -97,6 +98,7 @@ fun SeriesDetailsScreen(
 ) {
     val seriesTrailerState by viewModel.seriesTrailerResponse.collectAsState()
     val detailsSeriesState by viewModel.detailsSeriesResponse.collectAsState()
+    
 
     var playedTrailerKey by remember { mutableStateOf<String?>(null) }
 
@@ -325,7 +327,13 @@ fun SeriesDetailsScreen(
                                     )
                                 }
                             }
-                            Spacer(modifier = Modifier.height(200.dp) )
+                            Spacer(modifier = Modifier.height(20.dp) )
+                            
+                            if(it.numberOfSeasons > 0) {
+                                SeasonsAndEpisodesComponent(seriesInfo = it, viewModel = viewModel)
+                            }
+                            
+                            Spacer(modifier = Modifier.height(150.dp))
                         }
 
                     }
@@ -446,6 +454,7 @@ fun SeriesDetailsScreen(
             }
 
         }
+
     }
 
 

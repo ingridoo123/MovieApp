@@ -2,6 +2,7 @@ package com.example.movieapp.presentation.screens.series_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.repository.HomeRepositoryImpl
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
@@ -11,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.fold
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,6 +23,9 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
 
     private val _seriesTrailerResponse: MutableStateFlow<MovieState<List<Trailer>?>> = MutableStateFlow(MovieState.Loading)
     val seriesTrailerResponse: StateFlow<MovieState<List<Trailer>?>> = _seriesTrailerResponse
+
+    private val _seasonDetailsResponse: MutableStateFlow<MovieState<SeasonDetailsDto?>> = MutableStateFlow(MovieState.Loading)
+    val seasonDetailsResponse: StateFlow<MovieState<SeasonDetailsDto?>> = _seasonDetailsResponse
 
     fun fetchSeriesDetails(seriesId: String) {
         viewModelScope.launch {
@@ -40,6 +45,17 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
                 _seriesTrailerResponse.emit(MovieState.Success(response.results))
             } catch (e: Exception) {
                 _seriesTrailerResponse.emit(MovieState.Error("Error series trailer"))
+            }
+        }
+    }
+
+    fun fetchSeasonDetails(seriesId: String, seasonNumber: Int) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getSeasonDetails(seriesId, seasonNumber).first()
+                _seasonDetailsResponse.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _seasonDetailsResponse.emit(MovieState.Error("Error season details"))
             }
         }
     }

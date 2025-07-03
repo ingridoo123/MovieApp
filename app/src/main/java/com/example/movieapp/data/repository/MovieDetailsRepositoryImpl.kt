@@ -6,6 +6,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
+import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
@@ -62,6 +63,13 @@ class MovieDetailsRepositoryImpl @Inject constructor(private val apiService: Med
         val response = apiService.getSeriesTrailer(seriesId.toInt())
         emit(response)
     }.flowOn(Dispatchers.IO)
+
+    fun getSeasonDetails(seriesId: String, seasonNumber: Int): Flow<SeasonDetailsDto> = flow {
+        val response = apiService.getSeasonDetails(seriesId.toInt(), seasonNumber)
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+
 
 
 

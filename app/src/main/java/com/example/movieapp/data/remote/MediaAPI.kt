@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
+import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
@@ -198,6 +199,14 @@ interface MediaAPI {
         @Path("series_id") seriesId: Int,
         @Query("api_key") apiKey: String = API_KEY
     ): VideoResponse
+
+    @GET("tv/{series_id}/season/{season_number}")
+    suspend fun getSeasonDetails(
+        @Path("series_id") seriesId: Int,
+        @Path("season_number") seasonNumber: Int,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US"
+    ): SeasonDetailsDto
 
 
 
