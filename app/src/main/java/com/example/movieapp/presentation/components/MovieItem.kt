@@ -494,12 +494,7 @@ fun MovieItemAllGenreScreen(
                 )
             }
             if (imageState is AsyncImagePainter.State.Loading) {
-                CircularProgressIndicator(
-                    color = component,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .scale(0.7f)
-                )
+                AnimatedShimmerItem()
             }
         }
         Column(

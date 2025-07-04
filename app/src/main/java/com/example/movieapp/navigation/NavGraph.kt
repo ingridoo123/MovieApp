@@ -38,7 +38,9 @@ import com.example.movieapp.presentation.screens.home.HomeViewModel
 
 import com.example.movieapp.presentation.screens.home.SimpleHomeScreen
 import com.example.movieapp.presentation.screens.search.SearchScreen
+import com.example.movieapp.presentation.screens.series_details.SeriesCastAndCrewScreen
 import com.example.movieapp.presentation.screens.series_details.SeriesDetailsScreen
+import com.example.movieapp.presentation.screens.series_details.SimilarSeriesScreen
 import com.example.movieapp.presentation.screens.splash.SplashScreen
 import com.example.movieapp.ui.theme.background
 
@@ -264,6 +266,13 @@ fun SetupNavGraph(navController: NavHostController) {
                 )
             }
             composable(
+                route = Screen.SeriesCastAndCrew.route + "/{seriesId}",
+                arguments = listOf(navArgument("seriesId") {type = NavType.StringType})
+            ) {
+                SeriesCastAndCrewScreen(navController = navController , seriesId = it.arguments?.getString("seriesId") ?: "1" )
+            }
+        
+            composable(
                 route = Screen.Person.route + "/{personId}",
                 arguments = listOf(navArgument("personId") {type = NavType.StringType})
             ) {
@@ -281,6 +290,13 @@ fun SetupNavGraph(navController: NavHostController) {
                     navController = navController,
                     movieId = it.arguments?.getString("movieId") ?: "1"
                 )
+            }
+
+            composable(
+                route = Screen.SimilarSeries.route + "/{seriesId}",
+                arguments = listOf(navArgument("seriesId") {type = NavType.StringType})
+            ) {
+                SimilarSeriesScreen(navController = navController, seriesId = it.arguments?.getString("seriesId") ?: "1")
             }
         
             composable(

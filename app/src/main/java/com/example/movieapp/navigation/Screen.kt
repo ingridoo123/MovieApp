@@ -16,7 +16,11 @@ sealed class Screen(val route: String) {
 
     object CastAndCrew: Screen("cast_and_crew_screen")
 
+    object SeriesCastAndCrew: Screen("series_cast_and_crew_screen")
+
     object SimilarMovies: Screen("similar_movies_screen")
+
+    object SimilarSeries: Screen("similar_series_screen")
 
     object Person: Screen("person_screen")
     object AllMovies: Screen("all_movies_screen")
