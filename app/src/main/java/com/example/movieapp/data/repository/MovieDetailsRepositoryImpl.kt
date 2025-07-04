@@ -6,8 +6,10 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
+import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
 import kotlinx.coroutines.Dispatchers
@@ -66,6 +68,21 @@ class MovieDetailsRepositoryImpl @Inject constructor(private val apiService: Med
 
     fun getSeasonDetails(seriesId: String, seasonNumber: Int): Flow<SeasonDetailsDto> = flow {
         val response = apiService.getSeasonDetails(seriesId.toInt(), seasonNumber)
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getPersonSeriesCredits(personId: String): Flow<PersonSeriesCreditsResponse> = flow {
+        val response = apiService.getPersonSeriesCredits(personId.toInt())
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getSeriesCast(seriesId: String): Flow<CastResponse> = flow {
+        val response = apiService.getSeriesCast(seriesId.toInt())
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getSimilarSeries(seriesId: String): Flow<SeriesResponse> = flow {
+        val response = apiService.getSimilarSeries(seriesId.toInt())
         emit(response)
     }.flowOn(Dispatchers.IO)
 

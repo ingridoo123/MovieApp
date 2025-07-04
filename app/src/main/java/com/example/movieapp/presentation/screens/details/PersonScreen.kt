@@ -56,6 +56,7 @@ import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_U
 import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.presentation.components.CircleLoader
 import com.example.movieapp.presentation.components.PersonMoviesComponent
+import com.example.movieapp.presentation.components.PersonSeriesComponent
 import com.example.movieapp.ui.theme.background
 import com.example.movieapp.ui.theme.componentLighter
 import com.example.movieapp.ui.theme.top_bar_component
@@ -75,6 +76,7 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
 
     val personDetailsState by viewModel.personDetailsResponse.collectAsState()
     val personMovieCreditsResponse by viewModel.personMovieCreditsResponse.collectAsState()
+    val personSeriesCreditsResponse by viewModel.personSeriesCreditsResponse.collectAsState()
 
     val contextCurrent = LocalContext.current
 
@@ -224,7 +226,8 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                                         putExtra(Intent.EXTRA_TEXT, shareMessage)
                                                         type = "text/plain"
                                                     }
-                                                    val shareIntent = Intent.createChooser(sendIntent, null)
+                                                    val shareIntent =
+                                                        Intent.createChooser(sendIntent, null)
                                                     contextCurrent.startActivity(shareIntent)
                                                 }
                                                 .padding(bottom = 2.dp)
@@ -258,7 +261,10 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                             modifier = Modifier
                                                 .height(32.dp)
                                                 .wrapContentWidth()
-                                                .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                                                .hazeChild(
+                                                    hazeState,
+                                                    shape = RoundedCornerShape(15.dp)
+                                                )
                                                 .background(
                                                     color = Color.Transparent,
                                                     shape = RoundedCornerShape(20.dp)
@@ -425,6 +431,7 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
+                Log.d("PersonScreen","")
                 when(val creditsState = personMovieCreditsResponse) {
                     is MovieState.Loading -> {
 
@@ -443,6 +450,18 @@ fun PersonScreen(personId: String, navController: NavController, viewModel: Movi
                                 .padding(16.dp)
                         )
                     }
+                }
+                Spacer(Modifier.height(20.dp))
+
+                when(val creditsState = personSeriesCreditsResponse ) {
+                    is MovieState.Success -> {
+                        PersonSeriesComponent(
+                            navController = navController,
+                            seriesCreditsResponse = creditsState.data,
+                            personDepartment = personDepartment
+                        )
+                    }
+                    else -> {}
                 }
             }
         }

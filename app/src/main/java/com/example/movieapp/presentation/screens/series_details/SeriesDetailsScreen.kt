@@ -52,10 +52,14 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
+import com.example.movieapp.presentation.components.MovieCastComponent
+import com.example.movieapp.presentation.components.MovieCastLoading
 import com.example.movieapp.presentation.components.MovieDataItemEmpty
 import com.example.movieapp.presentation.components.SeasonsAndEpisodesComponent
+import com.example.movieapp.presentation.components.SeriesCastComponent
 import com.example.movieapp.presentation.components.SeriesItem
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
 import com.example.movieapp.presentation.screens.details.PlayTrailerBox
@@ -98,6 +102,8 @@ fun SeriesDetailsScreen(
 ) {
     val seriesTrailerState by viewModel.seriesTrailerResponse.collectAsState()
     val detailsSeriesState by viewModel.detailsSeriesResponse.collectAsState()
+    val seriesCastState by viewModel.seriesCastResponse.collectAsState()
+    val similarSeriesState by viewModel.similarSeriesResponse.collectAsState()
     
 
     var playedTrailerKey by remember { mutableStateOf<String?>(null) }
@@ -105,6 +111,8 @@ fun SeriesDetailsScreen(
     LaunchedEffect(Unit) {
         viewModel.fetchSeriesDetails(seriesId)
         viewModel.fetchSeriesTrailer(seriesId)
+        viewModel.fetchSeriesCast(seriesId)
+        viewModel.fetchSimilarSeries(seriesId)
     }
 
     Column(
@@ -332,6 +340,22 @@ fun SeriesDetailsScreen(
                             if(it.numberOfSeasons > 0) {
                                 SeasonsAndEpisodesComponent(seriesInfo = it, viewModel = viewModel)
                             }
+
+                            Spacer(modifier = Modifier.height(20.dp))
+
+                            when(seriesCastState) {
+                                is MovieState.Success -> {
+                                    val castList = ((seriesCastState as MovieState.Success<List<Cast>?>).data) ?: emptyList()
+                                    SeriesCastComponent(castList = castList, navController = navController, seriesId = seriesId)
+                                }
+                                is MovieState.Loading -> {
+                                    MovieCastLoading()
+                                }
+                                is MovieState.Error -> {
+
+                                }
+                            }
+
                             
                             Spacer(modifier = Modifier.height(150.dp))
                         }

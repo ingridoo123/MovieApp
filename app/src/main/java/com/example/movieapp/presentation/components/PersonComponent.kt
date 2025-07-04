@@ -64,7 +64,7 @@ fun PersonMoviesComponent(
     navController: NavController,
     movieCreditsResponse: PersonMovieCreditsResponse?,
     personDepartment: String?,
-    componentTitle: String = "Filmography"
+    componentTitle: String = "Filmography - Movie"
 ) {
     if (movieCreditsResponse == null || personDepartment == null) {
         return
@@ -74,8 +74,8 @@ fun PersonMoviesComponent(
 
     LaunchedEffect(movieCreditsResponse, personDepartment) {
         val popularityThreshold = 10.00
-        val voteAverageThreshold = 7.30
-        val secondaryPopularityThreshold = 4.50
+        val voteAverageThreshold = 7.00
+        val secondaryPopularityThreshold = 3.50
 
         val filteredMovies = mutableListOf<DisplayableMovieCredit>()
 

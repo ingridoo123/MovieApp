@@ -7,6 +7,7 @@ import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
+import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
@@ -207,6 +208,27 @@ interface MediaAPI {
         @Query("api_key") apiKey: String = API_KEY,
         @Query("language") language: String = "en-US"
     ): SeasonDetailsDto
+
+    @GET("person/{person_id}/tv_credits")
+    suspend fun getPersonSeriesCredits(
+        @Path("person_id") personId: Int,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US"
+    ): PersonSeriesCreditsResponse
+
+    @GET("tv/{series_id}/credits")
+    suspend fun getSeriesCast(
+        @Path("series_id") seriesId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): CastResponse
+
+    @GET("tv/{series_id}/similar")
+    suspend fun getSimilarSeries(
+        @Path("series_id") seriesId: Int,
+        @Query("page") page: Int = 1,
+        @Query("api_key") apiKey: String = API_KEY,
+        @Query("language") language: String = "en-US"
+    ): SeriesResponse
 
 
 

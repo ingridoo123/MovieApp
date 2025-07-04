@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.CastResponse
 import com.example.movieapp.data.remote.respond.MovieDetailsDTO
 import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
+import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
@@ -48,6 +49,9 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
     private val _personMovieCreditsResponse: MutableStateFlow<MovieState<PersonMovieCreditsResponse?>> = MutableStateFlow(MovieState.Loading)
     val personMovieCreditsResponse: StateFlow<MovieState<PersonMovieCreditsResponse?>> = _personMovieCreditsResponse
+
+    private val _personSeriesCreditsResponse: MutableStateFlow<MovieState<PersonSeriesCreditsResponse?>> = MutableStateFlow(MovieState.Loading)
+    val personSeriesCreditsResponse: StateFlow<MovieState<PersonSeriesCreditsResponse?>> = _personSeriesCreditsResponse
 
 
 
@@ -133,6 +137,7 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
                 val response = repository.getPersonDetails(personId).first()
                 _personDetailsResponse.emit(MovieState.Success(response))
                 fetchPersonMovieCredits(personId,response.department)
+                fetchPersonSeriesCredits(personId)
             } catch (e: Exception) {
                 _personDetailsResponse.emit(MovieState.Error("Error fetching person details: $e"))
             }
@@ -149,6 +154,18 @@ class MovieDetailsViewModel @Inject constructor(private val repository: MovieDet
 
             } catch (e: Exception) {
                 _personMovieCreditsResponse.emit(MovieState.Error("Error fetching person movie credits: ${e.localizedMessage}"))
+            }
+        }
+    }
+
+    fun fetchPersonSeriesCredits(personId: String) {
+        viewModelScope.launch {
+            _personSeriesCreditsResponse.emit(MovieState.Loading)
+            try {
+                val response = repository.getPersonSeriesCredits(personId).first()
+                _personSeriesCreditsResponse.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _personSeriesCreditsResponse.emit(MovieState.Error("Error fetching person series credits: ${e.localizedMessage}"))
             }
         }
     }

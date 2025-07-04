@@ -22,3 +22,5 @@ data class Person (
     @SerializedName("profile_path")
     val profilePath: String?
 )
+
+

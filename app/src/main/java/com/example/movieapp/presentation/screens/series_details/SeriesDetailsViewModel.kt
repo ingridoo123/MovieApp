@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.repository.HomeRepositoryImpl
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
+import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.util.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +28,14 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
 
     private val _seasonDetailsResponse: MutableStateFlow<MovieState<SeasonDetailsDto?>> = MutableStateFlow(MovieState.Loading)
     val seasonDetailsResponse: StateFlow<MovieState<SeasonDetailsDto?>> = _seasonDetailsResponse
+
+    private val _seriesCastResponse: MutableStateFlow<MovieState<List<Cast>?>> = MutableStateFlow(MovieState.Loading)
+    val seriesCastResponse: StateFlow<MovieState<List<Cast>?>> = _seriesCastResponse
+
+    private val _similarSeriesResponse: MutableStateFlow<MovieState<SeriesResponse?>> = MutableStateFlow(MovieState.Loading)
+    val similarSeriesResponse: StateFlow<MovieState<SeriesResponse?>> = _similarSeriesResponse
+
+
 
     fun fetchSeriesDetails(seriesId: String) {
         viewModelScope.launch {
@@ -56,6 +66,28 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
                 _seasonDetailsResponse.emit(MovieState.Success(response))
             } catch (e: Exception) {
                 _seasonDetailsResponse.emit(MovieState.Error("Error season details"))
+            }
+        }
+    }
+
+    fun fetchSeriesCast(seriesId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getSeriesCast(seriesId).first()
+                _seriesCastResponse.emit(MovieState.Success(response.castList))
+            } catch (e: Exception) {
+                _seriesCastResponse.emit(MovieState.Error("Error fetching series cast"))
+            }
+        }
+    }
+
+    fun fetchSimilarSeries(seriesId: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getSimilarSeries(seriesId).first()
+                _similarSeriesResponse.emit(MovieState.Success(response))
+            } catch (e: Exception) {
+                _similarSeriesResponse.emit(MovieState.Error("Error fetching similar series"))
             }
         }
     }
