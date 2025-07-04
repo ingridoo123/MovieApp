@@ -41,6 +41,7 @@ import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.respond.EpisodeDto
 import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.DisplayableSeriesCredit
 import com.example.movieapp.navigation.Screen
@@ -259,7 +260,7 @@ fun SeriesCastComponent(castList: List<Cast>, navController: NavController, seri
                 )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         val groupedList = castList.chunked(3)
 
@@ -496,6 +497,51 @@ fun SeriesItemSmallPerson(series: DisplayableSeriesCredit, navController: NavCon
                     fontSize = 11.sp, // bez zmian
                     modifier = Modifier.padding(end = 2.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun SimilarSeriesComponent(navController: NavController, series: SeriesResponse, seriesId: String) {
+    val seriesList = series.results
+    val filteredSeriesList = seriesList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi" && it.voteAverage != 0.0}
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "You May Also Like",
+                color = Color.White.copy(alpha = 0.8f),
+                fontFamily = netflixFamily,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+            IconButton(onClick = {
+
+            }) {
+                Icon(
+                    imageVector = Icons.Default.ArrowForwardIos,
+                    contentDescription = "See More",
+                    tint = Color.White.copy(alpha = 0.8f),
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            items(filteredSeriesList.size) {
+                SeriesItemSmallSimilar(series = filteredSeriesList[it],navController = navController)
             }
         }
     }

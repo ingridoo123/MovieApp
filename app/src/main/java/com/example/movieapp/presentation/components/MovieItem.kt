@@ -809,7 +809,7 @@ fun MovieCastComponent(castList: List<Cast>, navController: NavController, movie
                 )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
         
         val groupedList = castList.chunked(3)
         

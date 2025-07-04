@@ -446,7 +446,7 @@ fun MovieDetailsScreen(
 
            }
        }
-       Spacer(modifier = Modifier.height(30.dp))
+       Spacer(modifier = Modifier.height(20.dp))
 
        when(similarMovieState) {
            is MovieState.Success -> {
@@ -464,6 +464,7 @@ fun MovieDetailsScreen(
 
            }
        }
+       Spacer(modifier = Modifier.height(5.dp))
 
 
    }
@@ -612,7 +613,7 @@ fun SimilarMoviesComponent(navController: NavController, movie: MovieResponse, m
                 )
             }
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(10.dp)

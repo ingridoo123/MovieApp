@@ -51,7 +51,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
+import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
@@ -61,8 +63,10 @@ import com.example.movieapp.presentation.components.MovieDataItemEmpty
 import com.example.movieapp.presentation.components.SeasonsAndEpisodesComponent
 import com.example.movieapp.presentation.components.SeriesCastComponent
 import com.example.movieapp.presentation.components.SeriesItem
+import com.example.movieapp.presentation.components.SimilarSeriesComponent
 import com.example.movieapp.presentation.screens.details.MovieDetailsViewModel
 import com.example.movieapp.presentation.screens.details.PlayTrailerBox
+import com.example.movieapp.presentation.screens.details.SimilarMoviesComponent
 import com.example.movieapp.presentation.screens.details.YoutubePlayer
 import com.example.movieapp.presentation.screens.details.formatRuntime
 import com.example.movieapp.presentation.screens.favourite.FavouriteViewModel
@@ -356,9 +360,19 @@ fun SeriesDetailsScreen(
 
                                 }
                             }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            when(similarSeriesState) {
+                                is MovieState.Success -> {
+                                    val similarList = (similarSeriesState as MovieState.Success<SeriesResponse?>).data
+                                    if(similarList != null) {
+                                        SimilarSeriesComponent(navController = navController, series = similarList, seriesId)
+                                    }
+                                }
+                                else -> {}
+                            }
 
                             
-                            Spacer(modifier = Modifier.height(150.dp))
+                            Spacer(modifier = Modifier.height(5.dp))
                         }
 
                     }
