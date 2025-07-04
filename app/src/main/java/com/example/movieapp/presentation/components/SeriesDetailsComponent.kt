@@ -239,11 +239,12 @@ fun SeriesCastComponent(castList: List<Cast>, navController: NavController, seri
         ) {
             Text(
                 text = "Cast & Crew",
-                fontFamily = Constants.netflixFamily,
+                fontFamily = netflixFamily,
                 fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.8f),
                 fontWeight = FontWeight.Medium
             )
+
             IconButton(onClick = {
                 navController.navigate(Screen.CastAndCrew.route + "/$seriesId") {
                     launchSingleTop = true

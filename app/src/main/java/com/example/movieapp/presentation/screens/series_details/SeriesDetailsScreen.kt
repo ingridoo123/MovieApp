@@ -133,7 +133,7 @@ fun SeriesDetailsScreen(
                             viewModel = viewModel2,
                             bookmarkImageUrl = it.backdropPath ?: ""
                         )
-                        Log.d("DetailsScreen", seriesInfo.originalLanguage)
+                        Log.d("DetailsScreen", it.id.toString())
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -346,6 +346,7 @@ fun SeriesDetailsScreen(
                             when(seriesCastState) {
                                 is MovieState.Success -> {
                                     val castList = ((seriesCastState as MovieState.Success<List<Cast>?>).data) ?: emptyList()
+                                    Log.d("DetailsScreen","${castList}")
                                     SeriesCastComponent(castList = castList, navController = navController, seriesId = seriesId)
                                 }
                                 is MovieState.Loading -> {

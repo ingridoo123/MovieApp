@@ -216,7 +216,7 @@ interface MediaAPI {
         @Query("language") language: String = "en-US"
     ): PersonSeriesCreditsResponse
 
-    @GET("tv/{series_id}/credits")
+    @GET("tv/{series_id}/aggregate_credits")
     suspend fun getSeriesCast(
         @Path("series_id") seriesId: Int,
         @Query("api_key") apiKey: String = API_KEY
