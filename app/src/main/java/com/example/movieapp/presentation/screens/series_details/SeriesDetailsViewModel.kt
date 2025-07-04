@@ -9,6 +9,7 @@ import com.example.movieapp.data.repository.HomeRepositoryImpl
 import com.example.movieapp.data.repository.MovieDetailsRepositoryImpl
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
+import com.example.movieapp.domain.model.SeriesCrew
 import com.example.movieapp.domain.model.Trailer
 import com.example.movieapp.util.MovieState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,8 +37,8 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
     private val _similarSeriesResponse: MutableStateFlow<MovieState<SeriesResponse?>> = MutableStateFlow(MovieState.Loading)
     val similarSeriesResponse: StateFlow<MovieState<SeriesResponse?>> = _similarSeriesResponse
 
-    private val _seriesCrewCastResponse: MutableStateFlow<MovieState<Pair<List<Cast>, List<Crew>>>?> = MutableStateFlow(null)
-    val seriesCrewCastResponse: StateFlow<MovieState<Pair<List<Cast>, List<Crew>>>?> = _seriesCrewCastResponse
+    private val _seriesCrewCastResponse: MutableStateFlow<MovieState<Pair<List<Cast>, List<SeriesCrew>>>?> = MutableStateFlow(null)
+    val seriesCrewCastResponse: StateFlow<MovieState<Pair<List<Cast>, List<SeriesCrew>>>?> = _seriesCrewCastResponse
 
 
 
@@ -104,8 +105,8 @@ class SeriesDetailsViewModel @Inject constructor(private val repository: MovieDe
             } catch (e: Exception) {
                 _seriesCrewCastResponse.emit(MovieState.Error("cast error, try again :*"))
             }
+          }
         }
-    }
 
 
 }

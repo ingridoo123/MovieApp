@@ -10,6 +10,7 @@ import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.remote.respond.SearchResponse
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
+import com.example.movieapp.data.remote.respond.SeriesCastResponse
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
@@ -220,7 +221,7 @@ interface MediaAPI {
     suspend fun getSeriesCast(
         @Path("series_id") seriesId: Int,
         @Query("api_key") apiKey: String = API_KEY
-    ): CastResponse
+    ): SeriesCastResponse
 
     @GET("tv/{series_id}/similar")
     suspend fun getSimilarSeries(

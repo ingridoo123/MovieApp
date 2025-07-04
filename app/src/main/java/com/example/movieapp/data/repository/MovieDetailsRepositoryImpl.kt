@@ -8,6 +8,7 @@ import com.example.movieapp.data.remote.respond.MovieResponse
 import com.example.movieapp.data.remote.respond.PersonMovieCreditsResponse
 import com.example.movieapp.data.remote.respond.PersonSeriesCreditsResponse
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
+import com.example.movieapp.data.remote.respond.SeriesCastResponse
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
@@ -76,7 +77,7 @@ class MovieDetailsRepositoryImpl @Inject constructor(private val apiService: Med
         emit(response)
     }.flowOn(Dispatchers.IO)
 
-    fun getSeriesCast(seriesId: String): Flow<CastResponse> = flow {
+    fun getSeriesCast(seriesId: String): Flow<SeriesCastResponse> = flow {
         val response = apiService.getSeriesCast(seriesId.toInt())
         emit(response)
     }.flowOn(Dispatchers.IO)
