@@ -84,7 +84,9 @@ class MovieDetailsRepositoryImpl @Inject constructor(private val apiService: Med
 
     fun getSimilarSeries(seriesId: String): Flow<SeriesResponse> = flow {
         val response = apiService.getSimilarSeries(seriesId.toInt())
-        emit(response)
+        val sortedResponse = response.results.sortedByDescending { it.popularity }
+        val finalResponse = response.copy(results = sortedResponse)
+        emit(finalResponse)
     }.flowOn(Dispatchers.IO)
 
 

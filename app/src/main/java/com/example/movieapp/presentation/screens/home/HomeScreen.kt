@@ -1,6 +1,13 @@
 package com.example.movieapp.presentation.screens.home
 
 import android.util.Log
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +49,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -56,6 +65,7 @@ import com.example.movieapp.domain.model.Movie
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.AutoSlidingCarousel
+import com.example.movieapp.presentation.components.AutoSlidingCarousel2
 import com.example.movieapp.presentation.components.GenreBlock
 import com.example.movieapp.presentation.components.MovieItemLoadingPlaceholder
 import com.example.movieapp.presentation.components.MovieItemSmallSimilar
@@ -406,6 +416,9 @@ fun MediaTypeChip(text: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 
+
+
+
 @Composable
 fun HomeSlider(
     moviesList: List<Movie>,
@@ -437,7 +450,7 @@ fun HomeSlider(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            AutoSlidingCarousel(
+            AutoSlidingCarousel2(
                 images = moviesList,
                 currentIndex = currentIndex,
                 onIndexChanged = { currentIndex = it},
@@ -594,5 +607,180 @@ fun DisplayGenreList(genre: List<Genre>?) {
         }
     }
 }
+
+@Composable
+fun HomeSlider2(
+    moviesList: List<Movie>,
+    movieDetailsMap: Map<Int, MovieDetailsDTO>,
+    navController: NavController
+) {
+    val hazeState = remember { HazeState() }
+    var currentIndex by remember { mutableStateOf(0) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(560.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(bottomEnd = 10.dp, bottomStart = 10.dp))
+                .haze(
+                    state = hazeState,
+                    backgroundColor = Color.Black.copy(0.5f),
+                    tint = Color.Transparent,
+                    blurRadius = 50.dp
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            AutoSlidingCarousel2(
+                images = moviesList,
+                currentIndex = currentIndex,
+                onIndexChanged = { currentIndex = it },
+                modifier = Modifier
+                    .fillMaxWidth(0.9f)
+                    .height(546.dp)
+                    .clip(RoundedCornerShape(bottomEnd = 15.dp, bottomStart = 15.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Black.copy(alpha = 0.5f),
+                                Color.Transparent
+                            ), startY = 100f
+                        )
+                    ),
+                navController = navController,
+                // Przekazujemy callback do natychmiastowej aktualizacji
+                onPageChanged = { newIndex -> currentIndex = newIndex }
+            )
+        }
+
+        // Kafelki poza haze - aktualizują się natychmiast
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(bottom = 17.dp),
+            verticalArrangement = Arrangement.Bottom
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterHorizontally)
+            ) {
+                // Genre Panel
+                Box(
+                    modifier = Modifier
+                        .height(28.dp)
+                        .width(75.dp)
+                        .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .background(
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(vertical = 6.dp, horizontal = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = movieDetailsMap[moviesList[currentIndex].id]?.genres?.firstOrNull()?.name ?: "N/A",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontFamily = netflixFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 11.sp
+                    )
+                }
+
+                // Adult Rating Panel
+                Box(
+                    modifier = Modifier
+                        .height(28.dp)
+                        .width(45.dp)
+                        .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .background(
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (moviesList.isNotEmpty() && moviesList[currentIndex].adult) "18+" else "<18",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontFamily = netflixFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 11.sp
+                    )
+                }
+
+                // Rating Panel
+                Box(
+                    modifier = Modifier
+                        .height(28.dp)
+                        .width(45.dp)
+                        .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .background(
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = moviesList[currentIndex].voteAverage?.toString()?.take(3) ?: "N/A",
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontFamily = netflixFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 11.sp
+                    )
+                }
+
+                // Release Year Panel
+                Box(
+                    modifier = Modifier
+                        .height(28.dp)
+                        .width(50.dp)
+                        .hazeChild(hazeState, shape = RoundedCornerShape(15.dp))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.3f),
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .background(
+                            color = Color.Transparent,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .padding(6.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = moviesList[currentIndex].releaseDate?.take(4) ?: "N/A",
+                        color = Color.White.copy(alpha = 0.8f),
+                        fontFamily = netflixFamily,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = 11.sp
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 

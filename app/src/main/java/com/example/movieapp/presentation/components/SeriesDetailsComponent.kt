@@ -506,7 +506,7 @@ fun SeriesItemSmallPerson(series: DisplayableSeriesCredit, navController: NavCon
 @Composable
 fun SimilarSeriesComponent(navController: NavController, series: SeriesResponse, seriesId: String) {
     val seriesList = series.results
-    val filteredSeriesList = seriesList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi" && it.voteAverage != 0.0}
+    val filteredSeriesList = seriesList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi" && it.voteAverage != 0.0 && it.posterPath != null}
 
     Column(
         modifier = Modifier

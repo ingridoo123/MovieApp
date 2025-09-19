@@ -127,7 +127,7 @@ fun SimilarSeriesScreen(navController: NavController, seriesId: String, viewMode
                     modifier = Modifier.fillMaxSize()
                 ) {
                     if(similarList != null) {
-                        val filteredSimilarList = similarList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi"}
+                        val filteredSimilarList = similarList.filter { it.originalLanguage != "zh" && it.originalLanguage != "kn" && it.originalLanguage != "hi" && it.voteAverage != 0.0 && it.posterPath != null }
                         items(filteredSimilarList.size) { index ->
                             filteredSimilarList[index].let {
                                 SeriesItemBig(series = it, navController = navController)

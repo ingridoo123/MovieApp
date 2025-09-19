@@ -3,13 +3,20 @@ package com.example.movieapp.presentation.components
 import android.util.Log
 import android.widget.RatingBar
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -23,6 +30,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -48,19 +57,26 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -91,8 +107,10 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.math.absoluteValue
 
 @Composable
 fun MovieItemLoadingPlaceholder() {
@@ -354,6 +372,130 @@ fun MovieDataItemEmpty(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun AutoSlidingCarousel2(
+    images: List<Movie>,
+    modifier: Modifier = Modifier,
+    slideDuration: Long = 4000L,
+    currentIndex: Int,
+    onIndexChanged: (Int) -> Unit,
+    navController: NavController,
+    onPageChanged: ((Int) -> Unit)? = null
+) {
+    val pagerState = rememberPagerState(
+        initialPage = currentIndex,
+        pageCount = { images.size }
+    )
+
+    var isUserScrolling by remember { mutableStateOf(false) }
+    var isAutoScrolling by remember { mutableStateOf(false) }
+
+    // Synchronizacja pagerState z currentIndex - tylko dla automatycznego przesuwania
+    LaunchedEffect(currentIndex) {
+        if (!isUserScrolling && pagerState.currentPage != currentIndex) {
+            isAutoScrolling = true
+            pagerState.animateScrollToPage(currentIndex)
+            isAutoScrolling = false
+        }
+    }
+
+    // Natychmiastowa aktualizacja podczas scrollowania przez użytkownika
+    LaunchedEffect(pagerState.currentPage, pagerState.currentPageOffsetFraction) {
+        if (pagerState.isScrollInProgress && !isAutoScrolling) {
+            // Natychmiastowa aktualizacja tylko podczas ręcznego przeciągania
+            onPageChanged?.invoke(pagerState.currentPage)
+        }
+    }
+
+    // Śledzenie zmian strony przez użytkownika
+    LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
+        if (!pagerState.isScrollInProgress && !isAutoScrolling && pagerState.currentPage != currentIndex) {
+            onIndexChanged(pagerState.currentPage)
+        }
+        isUserScrolling = pagerState.isScrollInProgress && !isAutoScrolling
+    }
+
+    // Automatyczne przesuwanie
+    LaunchedEffect(currentIndex, isUserScrolling) {
+        if (images.isNotEmpty() && !isUserScrolling) {
+            delay(slideDuration)
+            val nextIndex = (currentIndex + 1) % images.size
+            onIndexChanged(nextIndex)
+        }
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = modifier
+        ) { page ->
+            val pageOffset = (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+            val scale = lerp(0.85f, 1f, 1f - pageOffset.absoluteValue.coerceIn(0f, 1f))
+            val alpha = lerp(0.6f, 1f, 1f - pageOffset.absoluteValue.coerceIn(0f, 1f))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        this.alpha = alpha
+                    }
+                    .clickable {
+                        if (page == pagerState.currentPage) {
+                            navController.navigate(Screen.Details.route + "/${images[page].id}")
+                        } else {
+                            onIndexChanged(page)
+                        }
+                    }
+            ) {
+                val imagePainter = rememberAsyncImagePainter(
+                    model = BASE_BACKDROP_IMAGE_URL + images[page].posterPath
+                )
+
+                Image(
+                    modifier = Modifier.fillMaxSize(),
+                    painter = imagePainter,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                )
+            }
+        }
+
+        // Wskaźniki - używają currentIndex dla automatycznego, pagerState.currentPage dla ręcznego
+        if (images.isNotEmpty()) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.padding(top = 5.dp)
+            ) {
+                images.forEachIndexed { index, _ ->
+                    val isActive = if (isUserScrolling || pagerState.isScrollInProgress) {
+                        index == pagerState.currentPage
+                    } else {
+                        index == currentIndex
+                    }
+                    Box(
+                        modifier = Modifier
+                            .padding(2.dp)
+                            .clip(RoundedCornerShape(15.dp))
+                            .width(if (isActive) 40.dp else 15.dp)
+                            .height(4.dp)
+                            .background(if (isActive) Color.White else Color.Gray)
+                            .animateContentSize(
+                                animationSpec = tween(200)
+                            )
+                    )
+                }
+            }
+        }
+    }
+}
+
+
 
 @Composable
 fun AutoSlidingCarousel(
@@ -364,10 +506,6 @@ fun AutoSlidingCarousel(
     onIndexChanged: (Int) -> Unit,
     navController: NavController
 ) {
-
-    
-    val coroutineScope = rememberCoroutineScope()
-    
     LaunchedEffect(key1 = currentIndex, key2 = images) {
         if (images.isNotEmpty()) {
             delay(slideDuration)
@@ -678,6 +816,8 @@ fun SeriesItemSmallSimilar(series: Series, navController: NavController) {
     )
 
     val genre = series.genreIds?.firstOrNull()?.let { genreMap[it] } ?: "N/A"
+
+    Log.d("SimilarSeries","${series.name}, ${series.posterPath}")
 
     Column(
         modifier = Modifier
