@@ -3,10 +3,12 @@ package com.example.movieapp.presentation.screens.favourite
 import android.text.BoringLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -85,7 +87,11 @@ import com.example.movieapp.ui.theme.deleteRed
 import com.example.movieapp.ui.theme.top_bar_component
 import com.example.movieapp.util.Constants
 import com.example.movieapp.util.Constants.netflixFamily
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@OptIn(DelicateCoroutinesApi::class)
 @Composable
 fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel = hiltViewModel(), viewModel2: MovieDetailsViewModel = hiltViewModel()) {
 
@@ -227,10 +233,11 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
 
                     AnimatedVisibility(
                         visible = visible,
-                        exit = slideOutVertically(
-                            animationSpec = tween(durationMillis = 4000),
-                            targetOffsetY = { -it }
-                        ) + fadeOut(animationSpec = tween(4000))
+                        exit = shrinkVertically(
+                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                        ) + fadeOut(
+                            animationSpec = tween(durationMillis = 300)
+                        )
                     ) {
                         FavouriteItem(
                             navController = navController,
@@ -244,7 +251,10 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                             },
                             onDeleteClick = {
                                 visible = false
-                                viewModel.removeFromFavourites(movie.mediaId)
+                                kotlinx.coroutines.GlobalScope.launch {
+                                    delay(300)
+                                    viewModel.removeFromFavourites(movie.mediaId)
+                                }
                             }
                         )
                     }

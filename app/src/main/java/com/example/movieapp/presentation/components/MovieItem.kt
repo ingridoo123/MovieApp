@@ -170,11 +170,16 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
                     blurRadius = 15.dp
                 )
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + movieInfo!!.backdropPath),
+            SubcomposeAsyncImage(
+                model = BASE_BACKDROP_IMAGE_URL + movieInfo!!.backdropPath,
                 contentDescription = "",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxWidth().height(350.dp) //usunalem fillMaxWidth zobaczym jak teraz bedzie
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(background.copy(0.5f))
+                    )
+                },
+                modifier = Modifier.fillMaxWidth().height(350.dp) //usunite fillMaxWidth zobaczym jak teraz bedzie
             )
             Box(
                 modifier = Modifier
@@ -226,18 +231,22 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
                         .clickable {
                             if (isFavourite != 0) {
                                 viewModel.removeFromFavourites(movieInfo.id)
-                                Toast.makeText(
-                                    context,
-                                    "Remove from your Favourites",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Remove from your Favourites",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
                             } else {
                                 viewModel.addToFavourites(myMovieInfo)
-                                Toast.makeText(
-                                    context,
-                                    "Added to your Favourites",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast
+                                    .makeText(
+                                        context,
+                                        "Added to your Favourites",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
                             }
                         }
                         .hazeChild(hazeState, shape = RoundedCornerShape(20.dp)),

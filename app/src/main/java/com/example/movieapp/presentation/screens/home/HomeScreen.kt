@@ -145,7 +145,8 @@ fun SimpleHomeScreen(navController: NavController, viewModel: HomeViewModel = hi
                         HomeSlider(
                             moviesList = preparedMovies,
                             movieDetailsMap = movieDetailsMap,
-                            navController
+                            navController = navController,
+                            viewModel = viewModel
                         )
                     } else {
 
@@ -423,14 +424,13 @@ fun MediaTypeChip(text: String, isSelected: Boolean, onClick: () -> Unit) {
 fun HomeSlider(
     moviesList: List<Movie>,
     movieDetailsMap: Map<Int, MovieDetailsDTO>,
-    navController: NavController
+    navController: NavController,
+    viewModel: HomeViewModel
 ) {
     val hazeState = remember {
         HazeState()
     }
-    var currentIndex by remember {
-        mutableStateOf(0)
-    }
+    val currentIndex by viewModel.currentSliderIndex
 
 
     Box(
@@ -453,7 +453,9 @@ fun HomeSlider(
             AutoSlidingCarousel2(
                 images = moviesList,
                 currentIndex = currentIndex,
-                onIndexChanged = { currentIndex = it},
+                onIndexChanged = {
+                    viewModel.updateSliderIndex(it)
+                                 },
                 modifier = Modifier
                     .fillMaxWidth(0.9f)
                     .height(546.dp)
@@ -466,7 +468,10 @@ fun HomeSlider(
                             ), startY = 100f
                         )
                     ),
-                navController = navController
+                navController = navController,
+                onPageChanged = {
+                    viewModel.updateSliderIndex(it)
+                }
 
 
             )

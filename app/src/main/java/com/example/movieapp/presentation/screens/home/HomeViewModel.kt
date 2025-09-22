@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -81,6 +83,9 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
 
     private val _cachedFilteredMovies = MutableStateFlow<List<Movie>>(emptyList())
     val cachedFilteredMovies: StateFlow<List<Movie>> = _cachedFilteredMovies
+
+    private val _currentSliderIndex = mutableStateOf(0)
+    val currentSliderIndex: State<Int> = _currentSliderIndex
 
     init {
         fetchDiscoverMovies()
@@ -302,4 +307,8 @@ class HomeViewModel @Inject constructor(private val repository: HomeRepositoryIm
             }
         }
     }
+    fun updateSliderIndex(index: Int) {
+        _currentSliderIndex.value = index
+    }
+
 }
