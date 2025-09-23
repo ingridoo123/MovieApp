@@ -12,10 +12,10 @@ import com.example.movieapp.data.remote.respond.SearchResponse
 import com.example.movieapp.data.remote.respond.SeasonDetailsDto
 import com.example.movieapp.data.remote.respond.SeriesCastResponse
 import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
+import com.example.movieapp.data.remote.respond.SeriesImagesResponse
 import com.example.movieapp.data.remote.respond.SeriesResponse
 import com.example.movieapp.data.remote.respond.VideoResponse
 import com.example.movieapp.domain.model.Person
-import com.example.movieapp.domain.model.Series
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -230,6 +230,12 @@ interface MediaAPI {
         @Query("api_key") apiKey: String = API_KEY,
         @Query("language") language: String = "en-US"
     ): SeriesResponse
+
+    @GET("tv/{series_id}/images")
+    suspend fun getSeriesImages(
+        @Path("series_id") seriesId: Int,
+        @Query("api_key") apiKey: String = API_KEY
+    ): SeriesImagesResponse
 
 
 

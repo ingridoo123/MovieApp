@@ -137,6 +137,7 @@ fun MovieDetailsScreen(
 
                        MovieDataItem(movieInfo = it, navController = navController, viewModel = viewModel2, imageUrl ?: "")
                        Log.d("DetailsScreen", moviesInfo.originalLanguage)
+                       Log.d("DetailsScreen", moviesInfo.popularity.toString())
                        Row(
                            modifier = Modifier
                                .fillMaxWidth()

@@ -46,7 +46,7 @@ data class Search(
 )
 
 fun Search.toMovie(): Movie? {
-    // If id or title is missing, return null (cannot display as Movie)
+
     if (id == null || title == null) return null
     return Movie(
         adult = adult ?: false,
@@ -67,5 +67,24 @@ fun Search.toMovie(): Movie? {
         video = video ?: false,
         voteAverage = voteAverage ?: 0.0,
         voteCount = voteCount ?: 0
+    )
+}
+
+fun Search.toSeries() : Series? {
+    if(id == null || title == null) return null
+    return Series(
+        adult = adult ?: false,
+        id = id,
+        name = title,
+        originalName = originalName ?: title,
+        posterPath = posterPath,
+        backdropPath = backdropPath,
+        overview = overview ?: "",
+        genreIds = genreIds,
+        voteAverage = voteAverage ?: 0.0,
+        voteCount = voteCount ?: 0,
+        firstAirDate = releaseDate,
+        popularity = popularity ?: 0.0,
+        originalLanguage = originalLanguage ?: ""
     )
 }

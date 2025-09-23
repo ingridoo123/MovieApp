@@ -47,6 +47,9 @@ class SearchViewModel @Inject constructor(
     private val _movieImagesMap = mutableStateMapOf<Int, List<BackdropImage>?>()
     val movieImagesMap: Map<Int, List<BackdropImage>?> = _movieImagesMap
 
+    private val _seriesImagesMap = mutableStateMapOf<Int, List<BackdropImage>?>()
+    val seriesImagesMap: Map<Int, List<BackdropImage>?> = _seriesImagesMap
+
     var searchParam = mutableStateOf("")
 
     private val _sortBy = mutableStateOf("Popular")
@@ -60,6 +63,9 @@ class SearchViewModel @Inject constructor(
 
     private val _selectedYear = mutableStateOf<Int?>(null)
     val selectedYear: State<Int?> = _selectedYear
+
+    private val _selectedMediaType = mutableStateOf<Int?>(0)
+    val selectedMediaType: State<Int?> = _selectedMediaType
 
 
 
@@ -76,8 +82,11 @@ class SearchViewModel @Inject constructor(
                         sortBy = _sortBy.value,
                         ratingRange = _ratingRange.value,
                         originalLanguage = _selectedCountry.value,
-                        year = _selectedYear.value
+                        year = _selectedYear.value,
+                        mediaType = _selectedMediaType.value
                     ).collect { results ->
+                        Log.d("SearchDebug", "ViewModel received ${results.size} results")
+                        Log.d("SearchDebug", "Results: ${results.map { "${it.title} - ${it.mediaType} - ${it.popularity}"}}")
                         _searchResults.value = results
                         _searchLoading.value = false
                     }
@@ -116,6 +125,17 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    fun fetchSeriesImages(seriesId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = searchRepository.getSeriesImages(seriesId.toString()).first()
+                _seriesImagesMap[seriesId] = response.backdrops
+            } catch (e: Exception) {
+                _seriesImagesMap[seriesId] = null
+            }
+        }
+    }
+
     fun updateSortBy(sortOption: String) {
         _sortBy.value = sortOption
 
@@ -150,12 +170,20 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    fun updateSelectedMediaType(mediaType: Int) {
+        _selectedMediaType.value = mediaType
+        if(searchParam.value.isNotEmpty()) {
+            searchRemoteMedia(false)
+        }
+    }
+
 
     fun resetAllFilters() {
         _sortBy.value = "Popular"
         _ratingRange.value = 0f..9f
         _selectedCountry.value = null
         _selectedYear.value = null
+        _selectedMediaType.value = 0
         fetchPopularMovies()
         if(searchParam.value.isNotEmpty()) {
             searchRemoteMedia(false)

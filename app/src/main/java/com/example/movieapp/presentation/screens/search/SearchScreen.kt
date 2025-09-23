@@ -113,7 +113,9 @@ import com.example.movieapp.R
 import com.example.movieapp.data.local.media.MediaEntity
 import com.example.movieapp.data.remote.MediaAPI.Companion.BASE_BACKDROP_IMAGE_URL
 import com.example.movieapp.domain.model.Movie
+import com.example.movieapp.domain.model.Series
 import com.example.movieapp.domain.model.toMovie
+import com.example.movieapp.domain.model.toSeries
 import com.example.movieapp.navigation.Screen
 import com.example.movieapp.presentation.components.AnimatedShimmerItem
 import com.example.movieapp.presentation.components.CircleLoader
@@ -167,6 +169,13 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         10770 to "TV Movie", 53 to "Thriller", 10752 to "War", 37 to "Western"
     )
 
+    val seriesGenreMap = mapOf(
+        10759 to "Action", 16 to "Animation", 35 to "Comedy", 80 to "Crime",
+        99 to "Documentary", 18 to "Drama", 10751 to "Family", 10762 to "Kids",
+        9648 to "Mystery", 10763 to "News", 10764 to "Reality", 10765 to "Sci-Fi & Fantasy",
+        10766 to "Soap", 10767 to "Talk", 10768 to "War & Politics", 37 to "Western"
+    )
+
     val genreImages = mapOf(
         "Action" to R.drawable.action,
         "Adventure" to R.drawable.adventure,
@@ -193,14 +202,21 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     )
 
     var selectedMovie by remember { mutableStateOf<Movie?>(null) }
+    var selectedSeries by remember { mutableStateOf<Series?>(null) }
     val isFavourite = remember { mutableStateOf(0) }
 
-    LaunchedEffect(selectedMovie) {
-        if (selectedMovie != null) {
-            viewModel2.isFavourite(selectedMovie!!.id)
-            sheetState.show()
-        } else {
-            sheetState.hide()
+    LaunchedEffect(selectedMovie,selectedSeries) {
+        when {
+            selectedMovie != null -> {
+                viewModel2.isFavourite(selectedMovie!!.id)
+                sheetState.show()
+            }
+            selectedSeries != null -> {
+                sheetState.show()
+            }
+            else -> {
+                sheetState.hide()
+            }
         }
     }
 
@@ -248,6 +264,10 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                 onYearChanged = { selectedYear ->
                     viewModel.updateSelectedYear(selectedYear)
                 },
+                onMediaTypeChanged = {selectedMediaType ->
+                                     viewModel.updateSelectedMediaType(selectedMediaType)
+                },
+                currentMediaType = viewModel.selectedMediaType.value ?: 0,
                 currentCountry = viewModel.selectedCountry.value,
                 onCountryChanged = { selectedCountry ->
                     viewModel.updateSelectedCountry(selectedCountry)
@@ -338,6 +358,38 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                             OutlinedButton(
                                 onClick = {
                                     // TODO: Share logic
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                            ) {
+                                Icon(Icons.Default.IosShare, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Share")
+                            }
+
+                            Spacer(modifier = Modifier.height(60.dp))
+                        }
+                    } ?: selectedSeries?.let { series ->
+                        Column {
+                            Text(
+                                text = series.name,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White.copy(alpha = 0.8f),
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            Text(
+                                text = series.overview,
+                                fontSize = 14.sp,
+                                color = componentLighter,
+                                maxLines = 5,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(bottom = 20.dp)
+                            )
+
+                            OutlinedButton(
+                                onClick = {
+                                    // TODO: Share logic for series
                                 },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
@@ -570,71 +622,138 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                             modifier = Modifier.fillMaxSize()
                         ) {
                             items(searchResultsList) { search ->
-                                val movie = search.toMovie()
-                                if (movie != null) {
-                                    if (movie.id !in movieImagesMap) {
-                                        LaunchedEffect(movie.id) {
-                                            viewModel.fetchMovieImages(movie.id)
+                                Log.d("SearchDebug", "Item: ${search.title}, mediaType: ${search.mediaType}")
+                                when(search.mediaType) {
+                                    "movie" -> {
+                                        val movie = search.toMovie()
+                                        if (movie != null) {
+                                            if (movie.id !in movieImagesMap) {
+                                                LaunchedEffect(movie.id) {
+                                                    viewModel.fetchMovieImages(movie.id)
+                                                }
+                                            }
+                                            val images = movieImagesMap[movie.id]
+                                            val imageUrl = movieImagesMap[movie.id]
+                                                ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }?.filePath
+
+                                            when {
+                                                images == null -> {
+                                                    LaunchedEffect(movie.id) {
+                                                        viewModel.fetchMovieImages(movie.id)
+                                                    }
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(100.dp)
+                                                            .clip(RoundedCornerShape(10.dp))
+                                                            .background(
+                                                                top_bar_component,
+                                                                shape = RoundedCornerShape(10.dp)
+                                                            ),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .fillMaxHeight()
+                                                                .width(175.dp)
+                                                                .clip(RoundedCornerShape(5.dp)),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            AnimatedShimmerItem()
+                                                        }
+                                                    }
+                                                }
+
+                                                imageUrl != null -> {
+                                                    MovieItemSearchScreen(
+                                                        movie = movie,
+                                                        navController = navController,
+                                                        genre = movie.genreIds?.firstOrNull()
+                                                            ?.let { genreMap[it] }
+                                                            ?: "N/A",
+                                                        imageUrl = imageUrl,
+                                                        onMoreClick = { movie ->
+                                                            selectedMovie = movie
+                                                        }
+                                                    )
+                                                }
+
+                                                else -> {
+                                                    MovieItemSearchScreen(
+                                                        movie = movie,
+                                                        navController = navController,
+                                                        genre = movie.genreIds?.firstOrNull()
+                                                            ?.let { genreMap[it] }
+                                                            ?: "N/A",
+                                                        imageUrl = movie.backdropPath,
+                                                        onMoreClick = { movie ->
+                                                            selectedMovie = movie
+                                                        }
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
-                                    val images = movieImagesMap[movie.id]
-                                    val imageUrl = movieImagesMap[movie.id]
-                                        ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }?.filePath
-
-                                    when {
-                                        images == null -> {
-                                            LaunchedEffect(movie.id) {
-                                                viewModel.fetchMovieImages(movie.id)
-                                            }
-                                            Row(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(100.dp)
-                                                    .clip(RoundedCornerShape(10.dp))
-                                                    .background(
-                                                        top_bar_component,
-                                                        shape = RoundedCornerShape(10.dp)
-                                                    ),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxHeight()
-                                                        .width(175.dp)
-                                                        .clip(RoundedCornerShape(5.dp)),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    AnimatedShimmerItem()
+                                    "tv" -> {
+                                        val series = search.toSeries()
+                                        if (series != null) {
+                                            val seriesImagesMap = viewModel.seriesImagesMap
+                                            if (series.id !in seriesImagesMap) {
+                                                LaunchedEffect(series.id) {
+                                                    viewModel.fetchSeriesImages(series.id)
                                                 }
                                             }
-                                        }
+                                            val images = seriesImagesMap[series.id]
+                                            val imageUrl = seriesImagesMap[series.id]
+                                                ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }?.filePath
 
-                                        imageUrl != null -> {
-                                            MovieItemSearchScreen(
-                                                movie = movie,
-                                                navController = navController,
-                                                genre = movie.genreIds?.firstOrNull()
-                                                    ?.let { genreMap[it] }
-                                                    ?: "N/A",
-                                                imageUrl = imageUrl,
-                                                onMoreClick = { movie ->
-                                                    selectedMovie = movie
+                                            when {
+                                                images == null -> {
+                                                    LaunchedEffect(series.id) {
+                                                        viewModel.fetchSeriesImages(series.id)
+                                                    }
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .height(100.dp)
+                                                            .clip(RoundedCornerShape(10.dp))
+                                                            .background(top_bar_component, shape = RoundedCornerShape(10.dp)),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .fillMaxHeight()
+                                                                .width(175.dp)
+                                                                .clip(RoundedCornerShape(5.dp)),
+                                                            contentAlignment = Alignment.Center
+                                                        ) {
+                                                            AnimatedShimmerItem()
+                                                        }
+                                                    }
                                                 }
-                                            )
-                                        }
-
-                                        else -> {
-                                            MovieItemSearchScreen(
-                                                movie = movie,
-                                                navController = navController,
-                                                genre = movie.genreIds?.firstOrNull()
-                                                    ?.let { genreMap[it] }
-                                                    ?: "N/A",
-                                                imageUrl = movie.backdropPath,
-                                                onMoreClick = { movie ->
-                                                    selectedMovie = movie
+                                                imageUrl != null -> {
+                                                    SeriesItemSearchScreen(
+                                                        series = series,
+                                                        navController = navController,
+                                                        genre = series.genreIds?.firstOrNull()?.let { seriesGenreMap[it] } ?: "N/A",
+                                                        imageUrl = imageUrl,
+                                                        onMoreClick = { series ->
+                                                            selectedSeries = series
+                                                        }
+                                                    )
                                                 }
-                                            )
+                                                else -> {
+                                                    SeriesItemSearchScreen(
+                                                        series = series,
+                                                        navController = navController,
+                                                        genre = series.genreIds?.firstOrNull()?.let { seriesGenreMap[it] } ?: "N/A",
+                                                        imageUrl = series.backdropPath,
+                                                        onMoreClick = { series ->
+                                                            selectedSeries = series
+                                                        }
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -666,6 +785,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
     LaunchedEffect(sheetState.currentValue) {
         if (sheetState.currentValue == ModalBottomSheetValue.Hidden) {
             selectedMovie = null
+            selectedSeries = null
         }
     }
 }
@@ -799,11 +919,13 @@ fun FilterBottomSheet(
     currentYear: Int? = null,
     onYearChanged: (Int?) -> Unit,
     currentCountry: String? = null,
+    currentMediaType: Int = 0,
+    onMediaTypeChanged:  (Int) -> Unit,
     onCountryChanged:(String?) -> Unit,
     onResetClickableNode: () -> Unit
 
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(0)}
+    var selectedTab by rememberSaveable { mutableStateOf(currentMediaType)}
     val sortOptions = listOf("Newest", "Popular", "Rating")
     var selectedSort by rememberSaveable { mutableStateOf(currentSortBy) }
     var ratingRange by remember { mutableStateOf(currentRatingRange) }
@@ -869,7 +991,10 @@ fun FilterBottomSheet(
                             if (selectedTab == index) component else top_bar_component,
                             shape = RoundedCornerShape(12.dp)
                         )
-                        .clickable { selectedTab = index }
+                        .clickable {
+                            selectedTab = index
+                            onMediaTypeChanged(index)
+                        }
                         .padding(horizontal = 16.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -1200,6 +1325,111 @@ fun MovieItemSearchScreen(
     }
 
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun SeriesItemSearchScreen(
+    series: Series,
+    navController: NavController,
+    genre: String,
+    imageUrl: String?,
+    onMoreClick: (Series) -> Unit
+) {
+    val title = series.name
+    val releaseDate = series.firstAirDate?.take(4) ?: "N/A"
+    val imageUrlFinal = BASE_BACKDROP_IMAGE_URL + (imageUrl ?: "")
+    val imagePainter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(imageUrlFinal)
+            .size(Size.ORIGINAL)
+            .build()
+    )
+    val imageState = imagePainter.state
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .clickable { navController.navigate(Screen.SeriesDetails.route + "/${series.id}") }
+            .clip(RoundedCornerShape(10.dp))
+            .background(top_bar_component, shape = RoundedCornerShape(10.dp)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(175.dp)
+                .clip(RoundedCornerShape(5.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            if (imageState is AsyncImagePainter.State.Success) {
+                val imageBitmap = imageState.result.drawable.toBitmap()
+
+                Image(
+                    bitmap = imageBitmap.asImageBitmap(),
+                    contentDescription = title,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(5.dp))
+                )
+            }
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Icon(
+                    imageVector = Icons.Default.ImageNotSupported,
+                    contentDescription = "error",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(5.dp))
+                        .padding(10.dp),
+                    tint = component
+                )
+            }
+            if (imageState is AsyncImagePainter.State.Loading) {
+                AnimatedShimmerItem()
+            }
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            Text(
+                modifier = Modifier
+                    .width(150.dp)
+                    .padding(bottom = 2.dp),
+                text = title,
+                lineHeight = 14.sp,
+                fontFamily = netflixFamily,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.White.copy(alpha = 0.8f),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = releaseDate,
+                fontFamily = netflixFamily,
+                fontSize = 11.sp,
+                color = componentLighter
+            )
+        }
+
+        Spacer(modifier = Modifier.width(10.dp))
+
+        IconButton(onClick = { onMoreClick(series) }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = null,
+                tint = componentLighter
+            )
+        }
+    }
+}
+
+
 
 fun getDisplayNameForCountryCode(code: String?): String {
     return tmdbLanguageToCountryMap[code] ?: code ?: "All"

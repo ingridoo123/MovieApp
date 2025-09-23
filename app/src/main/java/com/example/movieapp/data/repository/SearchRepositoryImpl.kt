@@ -1,5 +1,6 @@
 package com.example.movieapp.data.repository
 
+import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
@@ -7,6 +8,7 @@ import com.example.movieapp.data.paging.SearchMovieSource
 import com.example.movieapp.data.remote.MediaAPI
 import com.example.movieapp.data.remote.respond.MovieImagesResponse
 import com.example.movieapp.data.remote.respond.MovieResponse
+import com.example.movieapp.data.remote.respond.SeriesImagesResponse
 import com.example.movieapp.domain.model.Search
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +31,7 @@ class SearchRepositoryImpl @Inject constructor(
         ratingRange: ClosedFloatingPointRange<Float> = 0f..9f,
         originalLanguage: String? = null,
         year: Int? = null,
+        mediaType: Int? = 0,
         maxPages: Int = 5
     ): Flow<List<Search>> = flow {
         try {
@@ -52,10 +55,29 @@ class SearchRepositoryImpl @Inject constructor(
 
 
             val filteredResults = allResults.filter {
-                val baseFilter = (it.title != null && it.originalTitle != null &&
-                        !it.releaseDate.isNullOrBlank() && it.voteAverage != 0.0 &&
-                        it.backdropPath != null) && it.mediaType == "movie" &&
-                        (it.voteAverage ?: 0.0) >= ratingRange.start && (it.voteAverage ?: 0.0) <= ratingRange.endInclusive
+
+                val mediaTypeFilter = when(mediaType) {
+                    1 -> it.mediaType == "movie"
+                    2 -> it.mediaType == "tv"
+                    else -> it.mediaType == "movie" || it.mediaType == "tv"
+                }
+
+                val baseFilter = when (it.mediaType) {
+                    "movie" -> {
+                        it.title != null &&
+                                !it.releaseDate.isNullOrBlank() &&
+                                it.voteAverage != 0.0 &&
+                                it.backdropPath != null
+                    }
+                    "tv" -> {
+                        it.title != null &&
+                                it.voteAverage != null && it.voteAverage != 0.0 &&
+                                it.backdropPath != null
+                    }
+                    else -> false
+                }
+
+                val ratingRange = (it.voteAverage ?: 0.0) >= ratingRange.start && (it.voteAverage ?: 0.0) <= ratingRange.endInclusive
 
                 val languageFilter = originalLanguage == null || it.originalLanguage == originalLanguage
 
@@ -71,7 +93,9 @@ class SearchRepositoryImpl @Inject constructor(
                     }
                 } ?: false
 
-                baseFilter && languageFilter && yearFilter
+
+                baseFilter && languageFilter && yearFilter && ratingRange && mediaTypeFilter
+
             }
 
             val sortedResults = when (sortBy) {
@@ -146,6 +170,11 @@ class SearchRepositoryImpl @Inject constructor(
 
     fun getMovieImages(movieId: String): Flow<MovieImagesResponse> = flow {
         val response = apiService.getMovieImages(movieId.toInt())
+        emit(response)
+    }.flowOn(Dispatchers.IO)
+
+    fun getSeriesImages(seriesId: String): Flow<SeriesImagesResponse> = flow {
+        val response = apiService.getSeriesImages(seriesId.toInt())
         emit(response)
     }.flowOn(Dispatchers.IO)
 }
