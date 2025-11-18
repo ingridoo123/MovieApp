@@ -11,5 +11,6 @@ data class MediaEntity(
     val title: String,
     val releaseDate: String,
     val rating: Double,
-    val addedOn: Long
+    val addedOn: Long,
+    val mediaType: String // "movie lub "tv"
 )

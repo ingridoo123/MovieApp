@@ -246,7 +246,12 @@ fun FavouriteScreen(navController: NavController, viewModel: FavouriteViewModel 
                             title = movie.title,
                             onClick = {
                                 if (!isEditMode) {
-                                    navController.navigate(Screen.Details.route + "/${movie.mediaId}")
+                                    if (movie.mediaType == "tv") {
+                                        navController.navigate(Screen.SeriesDetails.route + "/${movie.mediaId}")
+                                    } else {
+                                        navController.navigate(Screen.Details.route + "/${movie.mediaId}")
+                                    }
+
                                 }
                             },
                             onDeleteClick = {

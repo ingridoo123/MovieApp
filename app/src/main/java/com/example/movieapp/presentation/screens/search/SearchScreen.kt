@@ -314,9 +314,25 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                             Button(
                                 onClick = {
                                     val date = SimpleDateFormat.getDateInstance().format(Date())
-                                    val imageUrl = movieImagesMap[movie.id]
-                                        ?.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }
-                                        ?.filePath
+                                    val imageUrl = movieImagesMap[movie.id]?.let { images ->
+
+                                        images.forEachIndexed { index, image ->
+                                            val fullUrl = "https://image.tmdb.org/t/p/original${image.filePath}"
+                                            Log.d("MovieImages", "Backdrop #${index + 1}:")
+                                            Log.d("MovieImages", "  Wymiary: ${image.width}x${image.height}")
+                                            Log.d("MovieImages", "  Język: ${image.language ?: "null"}")
+                                            Log.d("MovieImages", "  Ścieżka: ${image.filePath}")
+                                            Log.d("MovieImages", "  Pełny URL: $fullUrl")
+                                            Log.d("MovieImages", "  ----")
+                                        }
+
+                                        images.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }?.filePath
+                                            ?:
+                                            images.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == movie.originalLanguage }?.filePath
+                                            ?:
+                                            // 3. Jeśli nie ma, szukaj 1920x1080 w dowolnym języku
+                                            images.firstOrNull { it.height == 1080 && it.width == 1920 }?.filePath
+                                    }
                                     if(isFavourite.value != 0 ) {
                                         viewModel2.removeFromFavourites(movie.id)
                                         Toast.makeText(context, "Removed from your Favourites", Toast.LENGTH_SHORT).show()
@@ -328,7 +344,8 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             title = movie.title,
                                             releaseDate = movie.releaseDate ?: "N/A",
                                             rating = movie.voteAverage ?: 0.0,
-                                            addedOn = System.currentTimeMillis()
+                                            addedOn = System.currentTimeMillis(),
+                                            mediaType = "movie"
                                         )
                                         viewModel2.addToFavourites(entity)
                                         Toast.makeText(context, "Added to your Favourites", Toast.LENGTH_SHORT).show()

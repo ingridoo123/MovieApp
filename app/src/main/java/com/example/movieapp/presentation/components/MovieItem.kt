@@ -151,7 +151,8 @@ fun MovieDataItem(movieInfo: MovieDetailsDTO?, navController: NavController, vie
         title = movieInfo.title,
         releaseDate = movieInfo.releaseDate,
         rating = movieInfo.voteAverage,
-        addedOn = System.currentTimeMillis()
+        addedOn = System.currentTimeMillis(),
+        mediaType = "movie"
     )
 
     Box(

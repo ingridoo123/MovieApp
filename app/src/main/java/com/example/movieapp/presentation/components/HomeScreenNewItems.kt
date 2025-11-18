@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import coil.size.Size
@@ -205,7 +206,8 @@ fun SeriesItem(seriesInfo: SeriesDetailsDTO, navController: NavController, viewM
         title = seriesInfo.name,
         releaseDate = seriesInfo.firstAirDate,
         rating = seriesInfo.voteAverage,
-        addedOn = System.currentTimeMillis()
+        addedOn = System.currentTimeMillis(),
+        mediaType = "tv"
     )
 
     Box(
@@ -224,11 +226,16 @@ fun SeriesItem(seriesInfo: SeriesDetailsDTO, navController: NavController, viewM
                     blurRadius = 15.dp
                 )
         ) {
-            Image(
-                painter = rememberAsyncImagePainter(model = BASE_BACKDROP_IMAGE_URL + seriesInfo.backdropPath),
+            SubcomposeAsyncImage(
+                model = BASE_BACKDROP_IMAGE_URL + seriesInfo.backdropPath,
                 contentDescription = seriesInfo.name,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize().background(background.copy(0.5f))
+                    )
+                },
+                modifier = Modifier.fillMaxWidth().height(350.dp)
             )
             Box(
                 modifier = Modifier
