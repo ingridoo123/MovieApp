@@ -155,6 +155,7 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
         mutableStateOf("")
     }
     val movieImagesMap = viewModel.movieImagesMap
+    val seriesImagesMap = viewModel.seriesImagesMap
 
     var searchSubmitted by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
@@ -404,6 +405,55 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                 modifier = Modifier.padding(bottom = 20.dp)
                             )
 
+                            Button(
+                                onClick = {
+                                    val imageUrl = seriesImagesMap[series.id]?.let { images ->
+                                        images.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == "en" }?.filePath
+                                            ?:
+                                            images.firstOrNull { it.height == 1080 && it.width == 1920 && it.language == series.originalLanguage }?.filePath
+                                            ?:
+                                            images.firstOrNull { it.height == 1080 && it.width == 1920 }?.filePath
+                                            ?:
+                                            series.backdropPath
+                                    }
+
+                                    if(isFavourite.value != 0) {
+                                        viewModel2.removeFromFavourites(series.id)
+                                        Toast.makeText(context, "Removed from your Favourites", Toast.LENGTH_SHORT).show()
+                                        isFavourite.value = 0
+                                    } else {
+                                        val entity = MediaEntity(
+                                            mediaId = series.id,
+                                            imagePath = imageUrl ?: "",
+                                            title = series.name,
+                                            releaseDate = series.firstAirDate ?: "N/A",
+                                            rating = series.voteAverage ?: 0.0,
+                                            addedOn = System.currentTimeMillis(),
+                                            mediaType = "tv"
+                                        )
+                                        viewModel2.addToFavourites(entity)
+                                        Toast.makeText(context, "Added to your Favourites", Toast.LENGTH_SHORT).show()
+                                        isFavourite.value = 1
+                                    }
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 10.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = top_bar_component)
+                            ) {
+                                Icon(
+                                    imageVector = if (isFavourite.value != 0) Icons.Default.RemoveCircleOutline else Icons.Default.Add,
+                                    contentDescription = null,
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = if (isFavourite.value != 0) "Remove from Favourites" else "Add to Favourites",
+                                    color = Color.White,
+                                    fontFamily = netflixFamily
+                                )
+                            }
+
                             OutlinedButton(
                                 onClick = {
                                     // TODO: Share logic for series
@@ -481,7 +531,9 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                 ) {
 
 
-                                    Box(modifier = Modifier.fillMaxSize().background(brush = softRadialGradient))
+                                    Box(modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(brush = softRadialGradient))
 
                                     Text(
                                         text = genre,
@@ -551,7 +603,9 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                             )
                                             .clip(RoundedCornerShape(12.dp))
                                     ) {
-                                        Box(modifier = Modifier.fillMaxSize().background(brush = softRadialGradient))
+                                        Box(modifier = Modifier
+                                            .fillMaxSize()
+                                            .background(brush = softRadialGradient))
 
                                         Text(
                                             text = genre,
@@ -734,7 +788,10 @@ fun SearchScreen(navController: NavController, viewModel: SearchViewModel = hilt
                                                             .fillMaxWidth()
                                                             .height(100.dp)
                                                             .clip(RoundedCornerShape(10.dp))
-                                                            .background(top_bar_component, shape = RoundedCornerShape(10.dp)),
+                                                            .background(
+                                                                top_bar_component,
+                                                                shape = RoundedCornerShape(10.dp)
+                                                            ),
                                                         verticalAlignment = Alignment.CenterVertically
                                                     ) {
                                                         Box(
