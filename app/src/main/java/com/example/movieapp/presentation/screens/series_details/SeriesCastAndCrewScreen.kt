@@ -1,5 +1,6 @@
 package com.example.movieapp.presentation.screens.series_details
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -50,7 +51,9 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import coil.util.Logger
 import com.example.movieapp.data.remote.MediaAPI
+import com.example.movieapp.data.remote.respond.SeriesDetailsDTO
 import com.example.movieapp.domain.model.Cast
 import com.example.movieapp.domain.model.Crew
 import com.example.movieapp.domain.model.SeriesCrew
@@ -88,6 +91,19 @@ fun SeriesCastAndCrewScreen(navController: NavController, viewModel: SeriesDetai
             else -> emptyList()
         }
     }
+    val producerStrictCount = crewList.count { crew ->
+        crew.jobs.any { it.job == "Producer" || it.job == "Executive Producer" }
+    }
+    val producerLooseCount = crewList.count { crew ->
+        crew.jobs.any { it.job.contains("Producer", ignoreCase = true) }
+    }
+
+    Log.d(
+        "SeriesCrewDiag",
+        "seriesId=$seriesId, selectedFilter=$selectedFilter, crewList=${crewList.size}, filteredCrew=${filteredCrew.size}, strict=$producerStrictCount, loose=$producerLooseCount"
+    )
+
+    Log.d("SeriesCrewDiag", "selectedFilter=$selectedFilter, crewList=${crewList.size}, filteredCrew=${filteredCrew.size}")
 
     Column(
         modifier = Modifier
@@ -166,6 +182,10 @@ fun SeriesCastAndCrewScreen(navController: NavController, viewModel: SeriesDetai
                             SeriesCrewItemBigger(crew = crew, jobTitle = "Director", navController = navController)
                         }
                         "Producers" -> items(filteredCrew) { crew ->
+                            Log.d(
+                                "SeriesCrewDiag",
+                                "producer item id=${crew.id}, name=${crew.name}, jobs=${crew.jobs.map { "${it.job}:${it.episodeCount}" }}"
+                            )
                             val job = crew.jobs.first { it.job == "Producer" || it.job == "Executive Producer" }
                             SeriesCrewItemBigger(crew = crew, jobTitle = job.job, navController = navController)
                         }
@@ -251,6 +271,10 @@ fun SeriesCrewItemBigger(crew: SeriesCrew, jobTitle: String, navController: NavC
                                 maxLines = 1
                                     )
 
+                    Log.d(
+                        "SeriesCrewDiag",
+                        "SeriesCrewItemBigger -> id=${crew.id}, name=${crew.name}, jobTitle=$jobTitle, jobs=${crew.jobs.map { it.job }}"
+                    )
                         Text(
                                 text = jobTitle,
                                 fontFamily = Constants.netflixFamily,
